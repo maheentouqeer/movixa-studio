@@ -1,8 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, lazy, Suspense } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { ArrowRight, Play, Sparkles, Zap, ShieldCheck } from "lucide-react";
-import logoAsset from "@/assets/karigar-logo.jpg.asset.json";
-import { ParticleField } from "./particle-field";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useMounted } from "@/hooks/use-mounted";
+
+const HeroScene = lazy(() =>
+  import("./scene/hero-scene").then((m) => ({ default: m.HeroScene })),
+);
 
 const phrases = [
   "14 AI Agents. One Request.",
@@ -65,10 +69,14 @@ function Counter({ to, suffix = "", duration = 1800 }: { to: number; suffix?: st
 
 export function Hero() {
   const text = useTypewriter(phrases);
+  const isMobile = useIsMobile();
+  const mounted = useMounted();
+  const showScene = mounted && !isMobile;
+
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
-  const rx = useSpring(useTransform(my, [-0.5, 0.5], [8, -8]), { stiffness: 80, damping: 12 });
-  const ry = useSpring(useTransform(mx, [-0.5, 0.5], [-8, 8]), { stiffness: 80, damping: 12 });
+  const rx = useSpring(useTransform(my, [-0.5, 0.5], [6, -6]), { stiffness: 80, damping: 14 });
+  const ry = useSpring(useTransform(mx, [-0.5, 0.5], [-6, 6]), { stiffness: 80, damping: 14 });
 
   const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -78,8 +86,6 @@ export function Hero() {
 
   return (
     <section id="home" className="relative isolate min-h-screen overflow-hidden pt-32 pb-20 hero-grid-bg">
-      <ParticleField />
-      {/* radial glow */}
       <div className="pointer-events-none absolute left-1/2 top-1/3 -z-10 h-[700px] w-[700px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(13,115,119,0.35),transparent_70%)] blur-3xl" />
       <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-b from-transparent to-[var(--bg-deep)]" />
 
@@ -96,10 +102,10 @@ export function Hero() {
             4th Nationally · AISeekho 2026 · 7,000+ Teams
           </motion.div>
 
-          <h1 className="mt-6 font-display text-5xl font-black leading-[1.05] tracking-tight md:text-6xl lg:text-7xl">
-            <span className="block min-h-[1.1em]">
+          <h1 className="mt-6 font-display text-[clamp(3rem,7vw,6.5rem)] font-black leading-[0.95] tracking-[-0.035em]">
+            <span className="block min-h-[1em]">
               <span className="text-gradient-teal">{text}</span>
-              <span className="ml-1 inline-block h-[0.9em] w-[3px] -translate-y-1 animate-pulse bg-[var(--primary-lite)] align-middle" />
+              <span className="ml-1 inline-block h-[0.85em] w-[3px] -translate-y-1 animate-pulse bg-[var(--primary-lite)] align-middle" />
             </span>
           </h1>
 
@@ -144,34 +150,32 @@ export function Hero() {
           </div>
         </div>
 
-        {/* Right — Mascot + phone */}
-        <motion.div
+        {/* Right — 3D scene + floating glass cards */}
+        <div
           onMouseMove={onMove}
           onMouseLeave={() => { mx.set(0); my.set(0); }}
-          style={{ perspective: 1200 }}
           className="relative mx-auto h-[520px] w-full max-w-md"
+          style={{ perspective: 1200 }}
         >
-          <motion.div
-            style={{ rotateX: rx, rotateY: ry, transformStyle: "preserve-3d" }}
-            className="relative h-full w-full"
-          >
-            {/* Glow disc */}
-            <div className="absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(13,115,119,0.45),transparent_70%)] blur-2xl" />
+          {/* R3F scene */}
+          <div className="absolute inset-0">
+            {showScene ? (
+              <Suspense fallback={null}>
+                <HeroScene />
+              </Suspense>
+            ) : (
+              <div className="absolute left-1/2 top-1/2 h-[320px] w-[320px] -translate-x-1/2 -translate-y-1/2 animate-pulse-glow rounded-full bg-[radial-gradient(circle,rgba(13,115,119,0.55),transparent_70%)] blur-2xl" />
+            )}
+          </div>
 
-            {/* Mascot */}
-            <motion.img
-              src={logoAsset.url}
-              alt="Karigar AI mascot"
-              className="absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 animate-float drop-shadow-[0_20px_60px_rgba(20,255,236,0.25)]"
-            />
-
-            {/* Floating glass cards */}
+          {/* Floating glass cards on top */}
+          <motion.div style={{ rotateX: rx, rotateY: ry, transformStyle: "preserve-3d" }} className="pointer-events-none relative h-full w-full">
             <motion.div
               initial={{ opacity: 0, x: -40 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.6, duration: 0.6 }}
               style={{ transform: "translateZ(60px)" }}
-              className="absolute left-0 top-16 glass-card flex items-center gap-3 px-4 py-3"
+              className="pointer-events-auto absolute left-0 top-16 glass-card flex items-center gap-3 px-4 py-3"
             >
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--success)]/20 text-[var(--success)]">
                 <ShieldCheck className="h-4 w-4" />
@@ -187,7 +191,7 @@ export function Hero() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.85, duration: 0.6 }}
               style={{ transform: "translateZ(80px)" }}
-              className="absolute right-0 top-36 glass-card flex items-center gap-3 px-4 py-3"
+              className="pointer-events-auto absolute right-0 top-36 glass-card flex items-center gap-3 px-4 py-3"
             >
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--primary-lite)]/20 text-[var(--primary-lite)]">
                 <Zap className="h-4 w-4" />
@@ -203,7 +207,7 @@ export function Hero() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.1, duration: 0.6 }}
               style={{ transform: "translateZ(40px)" }}
-              className="absolute bottom-4 left-1/2 -translate-x-1/2 glass-card flex items-center gap-3 px-4 py-3"
+              className="pointer-events-auto absolute bottom-4 left-1/2 -translate-x-1/2 glass-card flex items-center gap-3 px-4 py-3"
             >
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-500/20 text-purple-300">
                 🔒
@@ -214,7 +218,7 @@ export function Hero() {
               </div>
             </motion.div>
           </motion.div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );
