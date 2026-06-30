@@ -84,7 +84,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "14 AI agents. Real-time A2A negotiation. Book any karigar in Pakistan with one voice request — Urdu, Roman Urdu or English. 4th nationally at AISeekho 2026.",
       },
       { name: "author", content: "Karigar AI" },
-      { property: "og:title", content: "Karigar AI — Pakistan's First Agentic AI Marketplace" },
+      { property: "og:title", content: "Karigar AI — Ek awaaz mein koi bhi karigar" },
       {
         property: "og:description",
         content:
@@ -94,12 +94,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@KarigarAI" },
       { name: "theme-color", content: "#060912" },
-      { name: "twitter:title", content: "Karigar AI — Pakistan's First Agentic AI Marketplace" },
-      { name: "description", content: "Karigar AI is Pakistan's first agentic AI marketplace for informal home services." },
-      { property: "og:description", content: "Karigar AI is Pakistan's first agentic AI marketplace for informal home services." },
-      { name: "twitter:description", content: "Karigar AI is Pakistan's first agentic AI marketplace for informal home services." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/263684ad-be26-48e4-821b-77682318712b/id-preview-13e26f8f--534e827d-d12f-4781-a0c6-0b82839ef2ff.lovable.app-1782588284401.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/263684ad-be26-48e4-821b-77682318712b/id-preview-13e26f8f--534e827d-d12f-4781-a0c6-0b82839ef2ff.lovable.app-1782588284401.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
