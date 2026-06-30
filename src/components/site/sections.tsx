@@ -556,28 +556,13 @@ export function DemoSection() {
         />
 
         <Reveal>
-          <div className="relative mx-auto flex max-w-md flex-col items-center">
-            {/* Phone frame */}
-            <div className="relative w-[320px] rounded-[44px] border border-white/10 bg-[var(--bg-card)] p-3 shadow-[0_0_60px_rgba(20,255,236,0.15)]">
-              <div className="absolute left-1/2 top-3 h-5 w-28 -translate-x-1/2 rounded-full bg-black" />
-              <div className="relative h-[560px] overflow-hidden rounded-[34px] bg-[var(--bg-deep)] p-4 pt-10">
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, rotateY: -90 }}
-                  animate={{ opacity: 1, rotateY: 0 }}
-                  transition={{ duration: 0.5 }}
-                  style={{ transformStyle: "preserve-3d" }}
-                >
-                  <div className="mb-3 flex items-center justify-between">
-                    <div className="text-[10px] font-black uppercase tracking-widest text-[var(--primary-lite)]">
-                      Karigar AI
-                    </div>
-                    <div className="text-[10px] font-bold text-white/60">{screens[i].title}</div>
-                  </div>
-                  {screens[i].body}
-                </motion.div>
-              </div>
-            </div>
+          <div className="relative mx-auto flex max-w-md flex-col items-center" style={{ perspective: 1400 }}>
+            {/* Phone frame — true 3D tilt */}
+            <PhoneFrame index={i} />
+          </div>
+        </Reveal>
+        <Reveal delay={0.1}>
+          <div className="mx-auto flex max-w-md flex-col items-center">
 
             {/* Controls */}
             <div className="mt-6 flex items-center gap-3">
