@@ -256,13 +256,28 @@ function Orbit({
   nodes,
   centerLabel,
   color,
-  size = 360,
+  size = 380,
 }: {
   nodes: { name: string }[];
   centerLabel: string;
   color: string;
   size?: number;
 }) {
+  const isMobile = useIsMobile();
+  const mounted = useMounted();
+  const useScene = mounted && !isMobile;
+
+  if (useScene) {
+    return (
+      <div className="relative mx-auto" style={{ width: size, height: size }}>
+        <Suspense fallback={null}>
+          <OrbitScene nodes={nodes} centerLabel={centerLabel} color={color} height={size} />
+        </Suspense>
+      </div>
+    );
+  }
+
+  // Mobile / SSR fallback — CSS orbit (lightweight)
   const r = size / 2 - 40;
   return (
     <div className="relative mx-auto" style={{ width: size, height: size }}>
@@ -278,33 +293,21 @@ function Orbit({
           const x = Math.cos(angle) * r;
           const y = Math.sin(angle) * r;
           return (
-            <motion.div
+            <div
               key={n.name}
-              className="group absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-              style={{ x, y }}
-              whileHover={{ scale: 1.15 }}
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+              style={{ transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))` }}
             >
-              <motion.div
-                animate={{ rotate: -360 }}
-                transition={{ duration: 40, ease: "linear", repeat: Infinity }}
-                className="flex flex-col items-center"
+              <div
+                className="flex h-11 w-11 items-center justify-center rounded-xl border text-xs font-bold"
+                style={{ background: `${color}20`, borderColor: `${color}66`, color, boxShadow: `0 0 18px ${color}33` }}
               >
-                <div
-                  className="flex h-12 w-12 items-center justify-center rounded-xl border text-xs font-bold transition"
-                  style={{
-                    background: `${color}20`,
-                    borderColor: `${color}66`,
-                    color,
-                    boxShadow: `0 0 20px ${color}33`,
-                  }}
-                >
-                  <Bot className="h-5 w-5" />
-                </div>
-                <div className="mt-1 whitespace-nowrap text-[10px] font-bold uppercase tracking-wider text-white/70">
-                  {n.name}
-                </div>
-              </motion.div>
-            </motion.div>
+                <Bot className="h-5 w-5" />
+              </div>
+              <div className="mt-1 text-center text-[10px] font-bold uppercase tracking-wider text-white/70">
+                {n.name}
+              </div>
+            </div>
           );
         })}
       </motion.div>
