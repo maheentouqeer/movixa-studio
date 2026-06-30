@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, lazy, Suspense } from "react";
 import { motion, useInView } from "framer-motion";
 import {
   AlertTriangle, Clock, PhoneOff, X, Mic, ArrowRight, MapPin,
@@ -8,6 +8,13 @@ import {
   ChevronLeft, ChevronRight, MessageSquare, Wrench,
 } from "lucide-react";
 import { SectionHeading, Reveal } from "./section-heading";
+import { SpotlightCard } from "./spotlight-card";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useMounted } from "@/hooks/use-mounted";
+
+const OrbitScene = lazy(() =>
+  import("./scene/orbit-scene").then((m) => ({ default: m.OrbitScene })),
+);
 
 /* ============================================================
    Reusable counter
