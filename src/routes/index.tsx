@@ -16,6 +16,7 @@ import {
 } from "@/components/site/sections";
 import { SiteFooter } from "@/components/site/site-footer";
 import { FloatingChat } from "@/components/site/floating-chat";
+import { ElectricStorySection } from "@/components/site/electric-story";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -46,6 +47,7 @@ function HomePage() {
       <main>
         <Hero />
         <ProblemSection />
+        <ElectricStorySection />
         <HowItWorks />
         <AgentsSection />
         <DemoSection />
