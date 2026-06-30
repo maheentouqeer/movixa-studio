@@ -126,9 +126,10 @@ function PulsingLines({
           lineWidth={1}
           transparent
           opacity={0.3}
-          ref={(l: THREE.Line | null) => {
-            if (l) matsRef.current[i] = l.material as THREE.LineBasicMaterial;
-          }}
+          ref={((l: unknown) => {
+            const obj = l as { material?: THREE.LineBasicMaterial } | null;
+            if (obj && obj.material) matsRef.current[i] = obj.material;
+          }) as never}
         />
       ))}
     </>

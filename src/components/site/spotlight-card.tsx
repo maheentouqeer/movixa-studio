@@ -42,13 +42,7 @@ export function SpotlightCard({
       ref={ref as never}
       onMouseMove={onMove}
       className={`spotlight-card group relative ${className}`}
-      style={
-        {
-          ...style,
-          // @ts-expect-error CSS var
-          "--spot-color": glowColor,
-        } as CSSProperties
-      }
+      style={{ ...style, ["--spot-color" as string]: glowColor } as CSSProperties}
     >
       {children}
     </Tag>
