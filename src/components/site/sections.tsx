@@ -535,6 +535,60 @@ const screens = [
   },
 ];
 
+function PhoneFrame({ index }: { index: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const el = ref.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width - 0.5;
+    const py = (e.clientY - r.top) / r.height - 0.5;
+    el.style.setProperty("--ry", `${px * 14}deg`);
+    el.style.setProperty("--rx", `${-py * 12}deg`);
+    el.style.setProperty("--sx", `${px * 22}px`);
+    el.style.setProperty("--sy", `${py * 22}px`);
+  };
+  const reset = () => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.setProperty("--ry", "0deg");
+    el.style.setProperty("--rx", "0deg");
+    el.style.setProperty("--sx", "0px");
+    el.style.setProperty("--sy", "0px");
+  };
+  return (
+    <div
+      ref={ref}
+      onMouseMove={onMove}
+      onMouseLeave={reset}
+      className="phone-3d relative w-[320px] rounded-[44px] border border-white/10 bg-[var(--bg-card)] p-3"
+      style={{
+        boxShadow:
+          "calc(var(--sx, 0px) * -1) calc(var(--sy, 0px) * -1 + 40px) 80px -20px rgba(20,255,236,0.25), 0 0 60px rgba(20,255,236,0.12)",
+      }}
+    >
+      <div className="absolute left-1/2 top-3 h-5 w-28 -translate-x-1/2 rounded-full bg-black" />
+      <div className="relative h-[560px] overflow-hidden rounded-[34px] bg-[var(--bg-deep)] p-4 pt-10">
+        <motion.div
+          key={index}
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <div className="mb-3 flex items-center justify-between">
+            <div className="text-[10px] font-black uppercase tracking-widest text-[var(--primary-lite)]">
+              Karigar AI
+            </div>
+            <div className="text-[10px] font-bold text-white/60">{screens[index].title}</div>
+          </div>
+          {screens[index].body}
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
+
 export function DemoSection() {
   const [i, setI] = useState(0);
   useEffect(() => {
