@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, lazy, Suspense } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
 import {
   AlertTriangle, Clock, PhoneOff, X, Mic, ArrowRight, MapPin,
@@ -8,13 +8,6 @@ import {
   ChevronLeft, ChevronRight, MessageSquare, Wrench,
 } from "lucide-react";
 import { SectionHeading, Reveal } from "./section-heading";
-import { SpotlightCard } from "./spotlight-card";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { useMounted } from "@/hooks/use-mounted";
-
-const OrbitScene = lazy(() =>
-  import("./scene/orbit-scene").then((m) => ({ default: m.OrbitScene })),
-);
 
 /* ============================================================
    Reusable counter
@@ -256,28 +249,13 @@ function Orbit({
   nodes,
   centerLabel,
   color,
-  size = 380,
+  size = 360,
 }: {
   nodes: { name: string }[];
   centerLabel: string;
   color: string;
   size?: number;
 }) {
-  const isMobile = useIsMobile();
-  const mounted = useMounted();
-  const useScene = mounted && !isMobile;
-
-  if (useScene) {
-    return (
-      <div className="relative mx-auto" style={{ width: size, height: size }}>
-        <Suspense fallback={null}>
-          <OrbitScene nodes={nodes} centerLabel={centerLabel} color={color} height={size} />
-        </Suspense>
-      </div>
-    );
-  }
-
-  // Mobile / SSR fallback — CSS orbit (lightweight)
   const r = size / 2 - 40;
   return (
     <div className="relative mx-auto" style={{ width: size, height: size }}>
@@ -293,21 +271,33 @@ function Orbit({
           const x = Math.cos(angle) * r;
           const y = Math.sin(angle) * r;
           return (
-            <div
+            <motion.div
               key={n.name}
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-              style={{ transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))` }}
+              className="group absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+              style={{ x, y }}
+              whileHover={{ scale: 1.15 }}
             >
-              <div
-                className="flex h-11 w-11 items-center justify-center rounded-xl border text-xs font-bold"
-                style={{ background: `${color}20`, borderColor: `${color}66`, color, boxShadow: `0 0 18px ${color}33` }}
+              <motion.div
+                animate={{ rotate: -360 }}
+                transition={{ duration: 40, ease: "linear", repeat: Infinity }}
+                className="flex flex-col items-center"
               >
-                <Bot className="h-5 w-5" />
-              </div>
-              <div className="mt-1 text-center text-[10px] font-bold uppercase tracking-wider text-white/70">
-                {n.name}
-              </div>
-            </div>
+                <div
+                  className="flex h-12 w-12 items-center justify-center rounded-xl border text-xs font-bold transition"
+                  style={{
+                    background: `${color}20`,
+                    borderColor: `${color}66`,
+                    color,
+                    boxShadow: `0 0 20px ${color}33`,
+                  }}
+                >
+                  <Bot className="h-5 w-5" />
+                </div>
+                <div className="mt-1 whitespace-nowrap text-[10px] font-bold uppercase tracking-wider text-white/70">
+                  {n.name}
+                </div>
+              </motion.div>
+            </motion.div>
           );
         })}
       </motion.div>
@@ -535,60 +525,6 @@ const screens = [
   },
 ];
 
-function PhoneFrame({ index }: { index: number }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const el = ref.current;
-    if (!el) return;
-    const r = el.getBoundingClientRect();
-    const px = (e.clientX - r.left) / r.width - 0.5;
-    const py = (e.clientY - r.top) / r.height - 0.5;
-    el.style.setProperty("--ry", `${px * 14}deg`);
-    el.style.setProperty("--rx", `${-py * 12}deg`);
-    el.style.setProperty("--sx", `${px * 22}px`);
-    el.style.setProperty("--sy", `${py * 22}px`);
-  };
-  const reset = () => {
-    const el = ref.current;
-    if (!el) return;
-    el.style.setProperty("--ry", "0deg");
-    el.style.setProperty("--rx", "0deg");
-    el.style.setProperty("--sx", "0px");
-    el.style.setProperty("--sy", "0px");
-  };
-  return (
-    <div
-      ref={ref}
-      onMouseMove={onMove}
-      onMouseLeave={reset}
-      className="phone-3d relative w-[320px] rounded-[44px] border border-white/10 bg-[var(--bg-card)] p-3"
-      style={{
-        boxShadow:
-          "calc(var(--sx, 0px) * -1) calc(var(--sy, 0px) * -1 + 40px) 80px -20px rgba(20,255,236,0.25), 0 0 60px rgba(20,255,236,0.12)",
-      }}
-    >
-      <div className="absolute left-1/2 top-3 h-5 w-28 -translate-x-1/2 rounded-full bg-black" />
-      <div className="relative h-[560px] overflow-hidden rounded-[34px] bg-[var(--bg-deep)] p-4 pt-10">
-        <motion.div
-          key={index}
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <div className="mb-3 flex items-center justify-between">
-            <div className="text-[10px] font-black uppercase tracking-widest text-[var(--primary-lite)]">
-              Karigar AI
-            </div>
-            <div className="text-[10px] font-bold text-white/60">{screens[index].title}</div>
-          </div>
-          {screens[index].body}
-        </motion.div>
-      </div>
-    </div>
-  );
-}
-
-
 export function DemoSection() {
   const [i, setI] = useState(0);
   useEffect(() => {
@@ -610,13 +546,28 @@ export function DemoSection() {
         />
 
         <Reveal>
-          <div className="relative mx-auto flex max-w-md flex-col items-center" style={{ perspective: 1400 }}>
-            {/* Phone frame — true 3D tilt */}
-            <PhoneFrame index={i} />
-          </div>
-        </Reveal>
-        <Reveal delay={0.1}>
-          <div className="mx-auto flex max-w-md flex-col items-center">
+          <div className="relative mx-auto flex max-w-md flex-col items-center">
+            {/* Phone frame */}
+            <div className="relative w-[320px] rounded-[44px] border border-white/10 bg-[var(--bg-card)] p-3 shadow-[0_0_60px_rgba(20,255,236,0.15)]">
+              <div className="absolute left-1/2 top-3 h-5 w-28 -translate-x-1/2 rounded-full bg-black" />
+              <div className="relative h-[560px] overflow-hidden rounded-[34px] bg-[var(--bg-deep)] p-4 pt-10">
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, rotateY: -90 }}
+                  animate={{ opacity: 1, rotateY: 0 }}
+                  transition={{ duration: 0.5 }}
+                  style={{ transformStyle: "preserve-3d" }}
+                >
+                  <div className="mb-3 flex items-center justify-between">
+                    <div className="text-[10px] font-black uppercase tracking-widest text-[var(--primary-lite)]">
+                      Karigar AI
+                    </div>
+                    <div className="text-[10px] font-bold text-white/60">{screens[i].title}</div>
+                  </div>
+                  {screens[i].body}
+                </motion.div>
+              </div>
+            </div>
 
             {/* Controls */}
             <div className="mt-6 flex items-center gap-3">
