@@ -47,6 +47,7 @@ function HomePage() {
       <main>
         <Hero />
         <ProblemSection />
+        <ElectricStorySection />
         <HowItWorks />
         <AgentsSection />
         <DemoSection />
