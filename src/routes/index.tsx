@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { Suspense, lazy, useEffect, useRef, useState } from "react";
-import { ArrowRight, Play, Sparkles, Film, Building2, Package, PenTool, Cpu, Store, Car, Shirt, Heart, GraduationCap, Rocket, ChefHat, Home, Check } from "lucide-react";
+import { ArrowRight, Play, Sparkles, Film, Building2, Package, PenTool, Cpu, Store, Car, Shirt, Heart, GraduationCap, Rocket, ChefHat, Home as HomeIcon, Check } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { MagneticButton } from "@/components/site/MagneticButton";
 import { Particles } from "@/components/site/Particles";
