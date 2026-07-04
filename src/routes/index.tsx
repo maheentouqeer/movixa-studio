@@ -246,7 +246,7 @@ const SERVICES_LIST = [
   { icon: Film, title: "AI Commercials", desc: "Broadcast-grade spots powered by generative pipelines." },
   { icon: Package, title: "Product Advertising", desc: "Hero product frames indistinguishable from real photography." },
   { icon: Sparkles, title: "CGI Transformations", desc: "Turn a photograph into a full cinematic sequence." },
-  { icon: Home, title: "Real Estate Visualization", desc: "Buildings, interiors, and lifestyles brought to life." },
+  { icon: HomeIcon, title: "Real Estate Visualization", desc: "Buildings, interiors, and lifestyles brought to life." },
   { icon: PenTool, title: "Logo Animation", desc: "Signature reveals engineered around your brand DNA." },
   { icon: Play, title: "AI Short Films", desc: "Story-first cinematic worlds from concept to color." },
   { icon: Rocket, title: "Social Media Ads", desc: "Scroll-stopping vertical assets tuned per platform." },
@@ -284,7 +284,7 @@ function Services() {
 }
 
 const INDUSTRIES = [
-  { icon: Building2, label: "Construction" }, { icon: Home, label: "Real Estate" },
+  { icon: Building2, label: "Construction" }, { icon: HomeIcon, label: "Real Estate" },
   { icon: ChefHat, label: "Restaurants" }, { icon: Sparkles, label: "Luxury Brands" },
   { icon: Car, label: "Automotive" }, { icon: Shirt, label: "Fashion" },
   { icon: Heart, label: "Healthcare" }, { icon: GraduationCap, label: "Education" },
