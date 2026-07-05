@@ -76,6 +76,24 @@ function ContactPage() {
         file_urls: [],
       });
       if (error) throw error;
+      try {
+        await notifyInquiry({
+          data: {
+            full_name: payload.full_name,
+            company_name: payload.company_name || null,
+            email: payload.email,
+            phone: payload.phone || null,
+            country: payload.country,
+            website: payload.website || null,
+            service_required: payload.service_required || null,
+            estimated_budget: payload.estimated_budget || null,
+            project_timeline: payload.project_timeline || null,
+            project_description: payload.project_description || null,
+          },
+        });
+      } catch (notifyErr) {
+        console.error("Notification email failed", notifyErr);
+      }
       setDone(true);
     } catch (err) {
       console.error(err);
