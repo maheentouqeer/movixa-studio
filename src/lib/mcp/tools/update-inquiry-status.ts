@@ -15,7 +15,7 @@ export default defineTool({
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
   handler: async ({ id, status, admin_notes }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const patch: Record<string, unknown> = { status };
+    const patch: { status: typeof status; admin_notes?: string } = { status };
     if (admin_notes !== undefined) patch.admin_notes = admin_notes;
     const { data, error } = await supabaseAdmin
       .from("contact_submissions")
