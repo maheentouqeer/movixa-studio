@@ -7,6 +7,10 @@ import { MagneticButton } from "@/components/site/MagneticButton";
 import { Particles } from "@/components/site/Particles";
 import { TiltCard } from "@/components/site/TiltCard";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { BehindProcess } from "@/components/site/BehindProcess";
+import { Experiments } from "@/components/site/Experiments";
+import { TechStack } from "@/components/site/TechStack";
+import { TrustSection } from "@/components/site/TrustSection";
 
 const Hero3D = lazy(() => import("@/components/site/Hero3D").then(m => ({ default: m.Hero3D })));
 
@@ -29,9 +33,13 @@ function Home() {
       <Hero />
       <Marquee />
       <Portfolio />
+      <Experiments />
       <Services />
+      <BehindProcess />
+      <TechStack />
       <Industries />
       <Process />
+      <TrustSection />
       <Testimonials />
       <FAQ />
       <CTA />
