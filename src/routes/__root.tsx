@@ -14,6 +14,9 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
+import { SmoothScroll } from "@/components/site/SmoothScroll";
+import { CustomCursor } from "@/components/site/CustomCursor";
+import { AmbientBackdrop } from "@/components/site/AmbientBackdrop";
 
 function NotFoundComponent() {
   return (
@@ -88,6 +91,9 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
+      <SmoothScroll />
+      <AmbientBackdrop />
+      <CustomCursor />
       <Navbar />
       <main className="relative">
         <Outlet />
