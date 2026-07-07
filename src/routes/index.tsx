@@ -33,6 +33,7 @@ function Home() {
       <LoadingCurtain />
       <Hero />
       <Marquee />
+      <Showreel />
       <Portfolio />
       <Experiments />
       <Services />
