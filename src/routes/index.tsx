@@ -11,6 +11,7 @@ import { BehindProcess } from "@/components/site/BehindProcess";
 import { Experiments } from "@/components/site/Experiments";
 import { TechStack } from "@/components/site/TechStack";
 import { TrustSection } from "@/components/site/TrustSection";
+import { Showreel } from "@/components/site/Showreel";
 
 const Hero3D = lazy(() => import("@/components/site/Hero3D").then(m => ({ default: m.Hero3D })));
 
@@ -32,6 +33,7 @@ function Home() {
       <LoadingCurtain />
       <Hero />
       <Marquee />
+      <Showreel />
       <Portfolio />
       <Experiments />
       <Services />
