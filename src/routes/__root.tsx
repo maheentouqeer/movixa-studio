@@ -17,6 +17,7 @@ import { Footer } from "@/components/site/Footer";
 import { SmoothScroll } from "@/components/site/SmoothScroll";
 import { CustomCursor } from "@/components/site/CustomCursor";
 import { AmbientBackdrop } from "@/components/site/AmbientBackdrop";
+import { BackgroundMusic } from "@/components/site/BackgroundMusic";
 
 function NotFoundComponent() {
   return (
@@ -100,6 +101,7 @@ function RootComponent() {
       </main>
       <Footer />
       <Toaster theme="dark" />
+      <BackgroundMusic />
     </QueryClientProvider>
   );
 }
