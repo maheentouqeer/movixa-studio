@@ -20,8 +20,8 @@ function AuthPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/admin" });
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) navigate({ to: "/admin", replace: true });
     });
   }, [navigate]);
 
@@ -38,9 +38,10 @@ function AuthPage() {
         toast.success("Account created. Check your email or sign in.");
         setMode("signin");
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        navigate({ to: "/admin" });
+        if (!data.user) throw new Error("Sign in did not return a user session. Please try again.");
+        navigate({ to: "/admin", replace: true });
       }
     } catch (err: any) {
       toast.error(err?.message ?? "Authentication failed");
