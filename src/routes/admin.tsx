@@ -55,10 +55,11 @@ function AdminPage() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.auth.getSession();
-      if (!data.session) { navigate({ to: "/auth" }); return; }
-      setUserId(data.session.user.id);
-      const { data: roleRow } = await supabase.rpc("has_role", { _user_id: data.session.user.id, _role: "admin" });
+      const { data, error } = await supabase.auth.getUser();
+      if (error || !data.user) { navigate({ to: "/auth", replace: true }); return; }
+      setUserId(data.user.id);
+      const { data: roleRow, error: roleError } = await supabase.rpc("has_role", { _user_id: data.user.id, _role: "admin" });
+      if (roleError) toast.error(roleError.message);
       setIsAdmin(roleRow === true);
       setChecking(false);
     })();
@@ -66,7 +67,7 @@ function AdminPage() {
 
   const signOut = async () => {
     await supabase.auth.signOut();
-    navigate({ to: "/auth" });
+    navigate({ to: "/auth", replace: true });
   };
 
   if (checking) return <CenterSpinner />;
