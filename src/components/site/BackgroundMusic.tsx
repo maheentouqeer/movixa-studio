@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Music2, VolumeX } from "lucide-react";
+import trackAsset from "@/assets/funk-sereno.mp3.asset.json";
 
-// Drop the mp3 at /public/audio/funk-sereno.mp3 (or update TRACK_URL)
-const TRACK_URL = "/audio/funk-sereno.mp3";
+const TRACK_URL = trackAsset.url;
 const STORAGE_KEY = "movixa:bg-music";
 
 export function BackgroundMusic() {

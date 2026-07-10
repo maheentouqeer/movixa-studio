@@ -2,6 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
+import logoAsset from "@/assets/movixa-new-logo.jpg.asset.json";
 
 const links = [
   { to: "/", label: "Home" },
@@ -35,10 +36,7 @@ export function Navbar() {
       <div className="mx-auto max-w-7xl px-6">
         <div className={`flex items-center justify-between rounded-full transition-all duration-500 ${scrolled ? "glass px-5 py-2.5" : "px-2 py-2"}`}>
           <Link to="/" className="flex items-center gap-2 group">
-            <span className="relative flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[oklch(0.78_0.17_55)] to-[oklch(0.68_0.22_25)]">
-              <span className="absolute inset-0 rounded-full blur-md bg-gradient-to-br from-[oklch(0.78_0.17_55)] to-[oklch(0.68_0.22_25)] opacity-60 group-hover:opacity-100 transition" />
-              <span className="relative text-background font-bold text-sm">M</span>
-            </span>
+            <img src={logoAsset.url} alt="Movixa logo" className="h-9 w-9 rounded-full object-cover shadow-[0_0_18px_oklch(0.68_0.22_25_/_0.35)]" />
             <span className="text-display text-xl tracking-tight">movixa</span>
           </Link>
 
