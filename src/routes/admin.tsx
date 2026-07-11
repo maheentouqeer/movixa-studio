@@ -58,9 +58,14 @@ function AdminPage() {
       const { data, error } = await supabase.auth.getUser();
       if (error || !data.user) { navigate({ to: "/auth", replace: true }); return; }
       setUserId(data.user.id);
-      const { data: roleRow, error: roleError } = await supabase.rpc("has_role", { _user_id: data.user.id, _role: "admin" });
+      const { data: roleRow, error: roleError } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", data.user.id)
+        .eq("role", "admin")
+        .maybeSingle();
       if (roleError) toast.error(roleError.message);
-      setIsAdmin(roleRow === true);
+      setIsAdmin(roleRow?.role === "admin");
       setChecking(false);
     })();
   }, [navigate]);
