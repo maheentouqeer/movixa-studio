@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteNav } from "@/components/site/site-nav";
-import { Hero } from "@/components/site/hero";
+import { HeroScrollAnimation } from "@/components/site/hero-scroll-animation";
 import {
   ProblemSection,
   HowItWorks,
@@ -44,7 +44,7 @@ function HomePage() {
     <div className="relative min-h-screen overflow-x-hidden bg-[var(--bg-deep)] text-white">
       <SiteNav />
       <main>
-        <Hero />
+        <HeroScrollAnimation />
         <ProblemSection />
         <HowItWorks />
         <AgentsSection />
