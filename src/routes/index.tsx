@@ -299,39 +299,6 @@ function Marquee() {
   );
 }
 
-const PROJECTS = [
-  {
-    title: "Aether Perfume",
-    category: "CGI Product Ads",
-    gradient: "from-amber-500/40 to-rose-500/40",
-  },
-  {
-    title: "Meridian Tower",
-    category: "Architectural Transformation",
-    gradient: "from-slate-400/40 to-indigo-500/40",
-  },
-  {
-    title: "Halo Motors EV",
-    category: "AI Commercials",
-    gradient: "from-orange-500/40 to-red-500/40",
-  },
-  {
-    title: "Nordic Bakery",
-    category: "Cinematic AI Films",
-    gradient: "from-yellow-500/40 to-orange-500/40",
-  },
-  {
-    title: "Volt Logo Reveal",
-    category: "Logo Animations",
-    gradient: "from-cyan-500/40 to-blue-500/40",
-  },
-  {
-    title: "Micro Worlds Vol. 3",
-    category: "Miniature AI Videos",
-    gradient: "from-emerald-500/40 to-teal-500/40",
-  },
-];
-
 interface FeaturedVideo {
   id: string;
   title: string;
@@ -345,15 +312,23 @@ interface FeaturedVideo {
 function Portfolio() {
   const [videos, setVideos] = useState<FeaturedVideo[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("videos")
         .select("id,title,description,category,storage_path,video_url,thumbnail_url")
         .eq("is_published", true)
         .order("sort_order", { ascending: true })
         .order("created_at", { ascending: false });
+
+      if (error) {
+        setLoadError(error.message);
+        setVideos([]);
+        setLoaded(true);
+        return;
+      }
 
       const rows = ((data as FeaturedVideo[]) ?? []).filter((video) => video.storage_path);
       const playableVideos = await Promise.all(
@@ -384,48 +359,37 @@ function Portfolio() {
           the best projects.
         </SectionHeading>
 
-        <div className="mt-20 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {loaded && videos.length > 0
-            ? videos.map((video, i) => <FeaturedVideoCard key={video.id} video={video} index={i} />)
-            : PROJECTS.map((p, i) => (
-                <motion.div
-                  key={p.title}
-                  initial={{ opacity: 0, y: 40 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-100px" }}
-                  transition={{ duration: 0.7, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
-                >
-                  <TiltCard>
-                    <div className="group relative aspect-[4/5] rounded-3xl overflow-hidden glass cursor-pointer">
-                      <div
-                        className={`absolute inset-0 bg-gradient-to-br ${p.gradient} opacity-70 group-hover:opacity-100 transition-opacity duration-700`}
-                      />
-                      <div className="absolute inset-0 grid-bg opacity-30" />
-                      <motion.div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
-                      <div className="absolute top-6 left-6">
-                        <span className="rounded-full glass px-3 py-1 text-xs">{p.category}</span>
-                      </div>
-                      <div className="absolute bottom-6 left-6 right-6">
-                        <div className="flex items-end justify-between">
-                          <h3 className="text-display text-3xl">{p.title}</h3>
-                          <motion.div
-                            className="rounded-full bg-foreground text-background p-3 opacity-0 group-hover:opacity-100 transition"
-                            whileHover={{ rotate: 45 }}
-                          >
-                            <ArrowRight className="h-4 w-4" />
-                          </motion.div>
-                        </div>
-                      </div>
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <div className="rounded-full bg-background/80 backdrop-blur p-5">
-                          <Play className="h-6 w-6 fill-foreground" />
-                        </div>
-                      </div>
-                    </div>
-                  </TiltCard>
-                </motion.div>
-              ))}
-        </div>
+        {!loaded ? (
+          <div className="mt-20 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {[0, 1, 2].map((item) => (
+              <div key={item} className="aspect-[4/5] rounded-3xl glass animate-pulse" />
+            ))}
+          </div>
+        ) : videos.length > 0 ? (
+          <div className="mt-20 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {videos.map((video, i) => (
+              <FeaturedVideoCard key={video.id} video={video} index={i} />
+            ))}
+          </div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mt-20 rounded-3xl glass p-10 md:p-14 text-center"
+          >
+            <h3 className="text-display text-3xl md:text-4xl">No featured videos yet.</h3>
+            <p className="mx-auto mt-4 max-w-xl text-sm text-muted-foreground">
+              Upload and publish videos from the admin panel and they will appear here
+              automatically.
+            </p>
+            {loadError && (
+              <p className="mx-auto mt-4 max-w-xl text-xs text-red-300">
+                Database message: {loadError}
+              </p>
+            )}
+          </motion.div>
+        )}
       </div>
     </section>
   );
