@@ -306,7 +306,6 @@ interface FeaturedVideo {
   category: string;
   storage_path: string;
   video_url: string;
-  thumbnail_storage_path: string | null;
   thumbnail_url: string | null;
 }
 
@@ -331,9 +330,7 @@ function Portfolio() {
     (async () => {
       const { data, error } = await supabase
         .from("videos")
-        .select(
-          "id,title,description,category,storage_path,video_url,thumbnail_storage_path,thumbnail_url",
-        )
+        .select("id,title,description,category,storage_path,video_url,thumbnail_url")
         .eq("is_published", true)
         .order("sort_order", { ascending: true })
         .order("created_at", { ascending: false });
@@ -352,10 +349,7 @@ function Portfolio() {
             ...video,
             video_url:
               (await resolveVideoAsset(video.storage_path, video.video_url)) ?? video.video_url,
-            thumbnail_url: await resolveVideoAsset(
-              video.thumbnail_storage_path,
-              video.thumbnail_url,
-            ),
+            thumbnail_url: video.thumbnail_url,
           };
         }),
       );

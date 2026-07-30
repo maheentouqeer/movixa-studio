@@ -96,7 +96,6 @@ export type Database = {
           is_published: boolean;
           sort_order: number;
           storage_path: string;
-          thumbnail_storage_path: string | null;
           thumbnail_url: string | null;
           title: string;
           updated_at: string;
@@ -111,7 +110,6 @@ export type Database = {
           is_published?: boolean;
           sort_order?: number;
           storage_path: string;
-          thumbnail_storage_path?: string | null;
           thumbnail_url?: string | null;
           title: string;
           updated_at?: string;
@@ -126,7 +124,6 @@ export type Database = {
           is_published?: boolean;
           sort_order?: number;
           storage_path?: string;
-          thumbnail_storage_path?: string | null;
           thumbnail_url?: string | null;
           title?: string;
           updated_at?: string;

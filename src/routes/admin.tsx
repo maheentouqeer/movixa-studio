@@ -50,7 +50,6 @@ interface Video {
   category: string;
   storage_path: string;
   video_url: string;
-  thumbnail_storage_path: string | null;
   thumbnail_url: string | null;
   display_video_url?: string;
   display_thumbnail_url?: string | null;
@@ -106,6 +105,10 @@ async function resolveStorageUrl(path: string | null | undefined, fallback?: str
 
   const { data: publicUrl } = supabase.storage.from(VIDEO_BUCKET).getPublicUrl(path);
   return publicUrl.publicUrl || fallback || null;
+}
+
+function publicStorageUrl(path: string) {
+  return supabase.storage.from(VIDEO_BUCKET).getPublicUrl(path).data.publicUrl;
 }
 
 function makeStoragePath(folder: "videos" | "thumbnails", file: File) {
@@ -410,10 +413,7 @@ function VideosPanel() {
           ...video,
           display_video_url:
             (await resolveStorageUrl(video.storage_path, video.video_url)) ?? video.video_url,
-          display_thumbnail_url: await resolveStorageUrl(
-            video.thumbnail_storage_path,
-            video.thumbnail_url,
-          ),
+          display_thumbnail_url: video.thumbnail_url,
         })),
       );
       setVideos(resolved);
@@ -458,18 +458,17 @@ function VideosPanel() {
             upsert: false,
           });
         if (thumbnailError) throw thumbnailError;
-        thumbnailUrl = (await resolveStorageUrl(thumbnailPath)) ?? null;
+        thumbnailUrl = publicStorageUrl(thumbnailPath);
       }
 
       setProgress(75);
-      const publicUrl = (await resolveStorageUrl(path)) ?? "";
+      const publicUrl = publicStorageUrl(path);
       const { error: insErr } = await supabase.from("videos").insert({
         title: videoTitle,
         description: description.trim() || null,
         category,
         storage_path: path,
         video_url: publicUrl,
-        thumbnail_storage_path: thumbnailPath,
         thumbnail_url: thumbnailUrl,
         sort_order: videos.length,
         created_by: userData.user.id,
@@ -513,9 +512,6 @@ function VideosPanel() {
       return;
     }
     await supabase.storage.from(VIDEO_BUCKET).remove([v.storage_path]);
-    if (v.thumbnail_storage_path) {
-      await supabase.storage.from(VIDEO_BUCKET).remove([v.thumbnail_storage_path]);
-    }
     setVideos((xs) => xs.filter((x) => x.id !== v.id));
     toast.success("Video deleted");
   };
