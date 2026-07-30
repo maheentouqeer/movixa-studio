@@ -16,7 +16,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Loader2, LogOut, Search, Shield, Upload, Trash2, Film } from "lucide-react";
+import { ImagePlus, Loader2, LogOut, Search, Shield, Upload, Trash2, Film } from "lucide-react";
 import { motion } from "framer-motion";
 
 export const Route = createFileRoute("/admin")({
@@ -50,7 +50,10 @@ interface Video {
   category: string;
   storage_path: string;
   video_url: string;
+  thumbnail_storage_path: string | null;
   thumbnail_url: string | null;
+  display_video_url?: string;
+  display_thumbnail_url?: string | null;
   sort_order: number;
   is_published: boolean;
   created_at: string;
@@ -88,6 +91,27 @@ const CATEGORIES = [
   "Miniature Worlds",
   "Experiments",
 ];
+
+const VIDEO_BUCKET = "videos";
+const signedUrlTtlSeconds = 60 * 60;
+
+async function resolveStorageUrl(path: string | null | undefined, fallback?: string | null) {
+  if (!path) return fallback ?? null;
+
+  const { data } = await supabase.storage
+    .from(VIDEO_BUCKET)
+    .createSignedUrl(path, signedUrlTtlSeconds);
+
+  if (data?.signedUrl) return data.signedUrl;
+
+  const { data: publicUrl } = supabase.storage.from(VIDEO_BUCKET).getPublicUrl(path);
+  return publicUrl.publicUrl || fallback || null;
+}
+
+function makeStoragePath(folder: "videos" | "thumbnails", file: File) {
+  const ext = file.name.split(".").pop()?.toLowerCase() || (folder === "videos" ? "mp4" : "jpg");
+  return `${folder}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+}
 
 function AdminPage() {
   const navigate = useNavigate();
@@ -365,9 +389,11 @@ function VideosPanel() {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState(CATEGORIES[0]);
   const [file, setFile] = useState<File | null>(null);
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
+  const thumbnailRef = useRef<HTMLInputElement>(null);
 
   const load = async () => {
     setLoading(true);
@@ -377,7 +403,21 @@ function VideosPanel() {
       .order("sort_order")
       .order("created_at", { ascending: false });
     if (error) toast.error(error.message);
-    else setVideos(data as Video[]);
+    else {
+      const rows = (data as Video[]) ?? [];
+      const resolved = await Promise.all(
+        rows.map(async (video) => ({
+          ...video,
+          display_video_url:
+            (await resolveStorageUrl(video.storage_path, video.video_url)) ?? video.video_url,
+          display_thumbnail_url: await resolveStorageUrl(
+            video.thumbnail_storage_path,
+            video.thumbnail_url,
+          ),
+        })),
+      );
+      setVideos(resolved);
+    }
     setLoading(false);
   };
   useEffect(() => {
@@ -396,23 +436,41 @@ function VideosPanel() {
       const { data: userData, error: userError } = await supabase.auth.getUser();
       if (userError || !userData.user)
         throw userError ?? new Error("You must be signed in to upload videos.");
-      const ext = file.name.split(".").pop() || "mp4";
-      const path = `${Date.now()}-${crypto.randomUUID()}.${ext}`;
+      const path = makeStoragePath("videos", file);
       setProgress(30);
-      const { error: upErr } = await supabase.storage.from("videos").upload(path, file, {
+      const { error: upErr } = await supabase.storage.from(VIDEO_BUCKET).upload(path, file, {
         contentType: file.type,
         cacheControl: "31536000",
         upsert: false,
       });
       if (upErr) throw upErr;
+
+      let thumbnailPath: string | null = null;
+      let thumbnailUrl: string | null = null;
+      if (thumbnailFile) {
+        setProgress(58);
+        thumbnailPath = makeStoragePath("thumbnails", thumbnailFile);
+        const { error: thumbnailError } = await supabase.storage
+          .from(VIDEO_BUCKET)
+          .upload(thumbnailPath, thumbnailFile, {
+            contentType: thumbnailFile.type,
+            cacheControl: "31536000",
+            upsert: false,
+          });
+        if (thumbnailError) throw thumbnailError;
+        thumbnailUrl = (await resolveStorageUrl(thumbnailPath)) ?? null;
+      }
+
       setProgress(75);
-      const { data: publicUrl } = supabase.storage.from("videos").getPublicUrl(path);
+      const publicUrl = (await resolveStorageUrl(path)) ?? "";
       const { error: insErr } = await supabase.from("videos").insert({
         title: videoTitle,
         description: description.trim() || null,
         category,
         storage_path: path,
-        video_url: publicUrl.publicUrl,
+        video_url: publicUrl,
+        thumbnail_storage_path: thumbnailPath,
+        thumbnail_url: thumbnailUrl,
         sort_order: videos.length,
         created_by: userData.user.id,
       });
@@ -422,7 +480,9 @@ function VideosPanel() {
       setTitle("");
       setDescription("");
       setFile(null);
+      setThumbnailFile(null);
       if (fileRef.current) fileRef.current.value = "";
+      if (thumbnailRef.current) thumbnailRef.current.value = "";
       await load();
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : "Upload failed");
@@ -452,7 +512,10 @@ function VideosPanel() {
       toast.error(error.message);
       return;
     }
-    await supabase.storage.from("videos").remove([v.storage_path]);
+    await supabase.storage.from(VIDEO_BUCKET).remove([v.storage_path]);
+    if (v.thumbnail_storage_path) {
+      await supabase.storage.from(VIDEO_BUCKET).remove([v.thumbnail_storage_path]);
+    }
     setVideos((xs) => xs.filter((x) => x.id !== v.id));
     toast.success("Video deleted");
   };
@@ -527,6 +590,24 @@ function VideosPanel() {
               </p>
             )}
           </div>
+          <div>
+            <label className="text-xs uppercase tracking-widest text-muted-foreground">
+              Thumbnail image
+            </label>
+            <Input
+              ref={thumbnailRef}
+              type="file"
+              accept="image/*"
+              onChange={(e) => setThumbnailFile(e.target.files?.[0] ?? null)}
+              className="mt-2"
+              disabled={uploading}
+            />
+            {thumbnailFile && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                {thumbnailFile.name} Â· {(thumbnailFile.size / 1024 / 1024).toFixed(1)} MB
+              </p>
+            )}
+          </div>
           {uploading && (
             <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
               <div
@@ -567,7 +648,8 @@ function VideosPanel() {
             {videos.map((v) => (
               <div key={v.id} className="glass rounded-2xl overflow-hidden">
                 <video
-                  src={v.video_url}
+                  src={v.display_video_url ?? v.video_url}
+                  poster={v.display_thumbnail_url ?? v.thumbnail_url ?? undefined}
                   muted
                   playsInline
                   preload="metadata"
@@ -601,6 +683,11 @@ function VideosPanel() {
                       <Switch checked={v.is_published} onCheckedChange={() => togglePublish(v)} />
                       Published
                     </div>
+                    {v.display_thumbnail_url && (
+                      <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <ImagePlus className="h-3.5 w-3.5" /> Thumbnail
+                      </span>
+                    )}
                     <button
                       onClick={() => remove(v)}
                       className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-red-300 hover:bg-red-500/10"

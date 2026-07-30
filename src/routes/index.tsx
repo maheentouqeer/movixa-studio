@@ -306,7 +306,20 @@ interface FeaturedVideo {
   category: string;
   storage_path: string;
   video_url: string;
+  thumbnail_storage_path: string | null;
   thumbnail_url: string | null;
+}
+
+const VIDEO_BUCKET = "videos";
+
+async function resolveVideoAsset(path: string | null | undefined, fallback?: string | null) {
+  if (!path) return fallback ?? null;
+
+  const { data } = await supabase.storage.from(VIDEO_BUCKET).createSignedUrl(path, 60 * 60);
+  if (data?.signedUrl) return data.signedUrl;
+
+  const { data: publicUrl } = supabase.storage.from(VIDEO_BUCKET).getPublicUrl(path);
+  return publicUrl.publicUrl || fallback || null;
 }
 
 function Portfolio() {
@@ -318,7 +331,9 @@ function Portfolio() {
     (async () => {
       const { data, error } = await supabase
         .from("videos")
-        .select("id,title,description,category,storage_path,video_url,thumbnail_url")
+        .select(
+          "id,title,description,category,storage_path,video_url,thumbnail_storage_path,thumbnail_url",
+        )
         .eq("is_published", true)
         .order("sort_order", { ascending: true })
         .order("created_at", { ascending: false });
@@ -333,13 +348,14 @@ function Portfolio() {
       const rows = ((data as FeaturedVideo[]) ?? []).filter((video) => video.storage_path);
       const playableVideos = await Promise.all(
         rows.map(async (video) => {
-          const { data: signed } = await supabase.storage
-            .from("videos")
-            .createSignedUrl(video.storage_path, 60 * 60);
-
           return {
             ...video,
-            video_url: signed?.signedUrl ?? video.video_url,
+            video_url:
+              (await resolveVideoAsset(video.storage_path, video.video_url)) ?? video.video_url,
+            thumbnail_url: await resolveVideoAsset(
+              video.thumbnail_storage_path,
+              video.thumbnail_url,
+            ),
           };
         }),
       );

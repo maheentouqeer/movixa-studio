@@ -8,8 +8,22 @@ interface Video {
   title: string;
   description: string | null;
   category: string;
+  storage_path: string;
   video_url: string;
+  thumbnail_storage_path: string | null;
   thumbnail_url: string | null;
+}
+
+const VIDEO_BUCKET = "videos";
+
+async function resolveVideoAsset(path: string | null | undefined, fallback?: string | null) {
+  if (!path) return fallback ?? null;
+
+  const { data } = await supabase.storage.from(VIDEO_BUCKET).createSignedUrl(path, 60 * 60);
+  if (data?.signedUrl) return data.signedUrl;
+
+  const { data: publicUrl } = supabase.storage.from(VIDEO_BUCKET).getPublicUrl(path);
+  return publicUrl.publicUrl || fallback || null;
 }
 
 function VideoCard({ v, i }: { v: Video; i: number }) {
@@ -21,8 +35,14 @@ function VideoCard({ v, i }: { v: Video; i: number }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-100px" }}
       transition={{ duration: 0.7, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
-      onMouseEnter={() => { ref.current?.play().catch(() => {}); setPlaying(true); }}
-      onMouseLeave={() => { ref.current?.pause(); setPlaying(false); }}
+      onMouseEnter={() => {
+        ref.current?.play().catch(() => {});
+        setPlaying(true);
+      }}
+      onMouseLeave={() => {
+        ref.current?.pause();
+        setPlaying(false);
+      }}
       className="group relative aspect-[4/5] rounded-3xl overflow-hidden glass"
     >
       <video
@@ -35,14 +55,20 @@ function VideoCard({ v, i }: { v: Video; i: number }) {
         preload="metadata"
         className="absolute inset-0 h-full w-full object-cover"
       />
-      <div className={`absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent transition-opacity duration-500 ${playing ? "opacity-60" : "opacity-90"}`} />
+      <div
+        className={`absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent transition-opacity duration-500 ${playing ? "opacity-60" : "opacity-90"}`}
+      />
       <div className="absolute top-5 left-5">
-        <span className="rounded-full glass px-3 py-1 text-[10px] uppercase tracking-widest">{v.category}</span>
+        <span className="rounded-full glass px-3 py-1 text-[10px] uppercase tracking-widest">
+          {v.category}
+        </span>
       </div>
       <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between">
         <div>
           <h3 className="text-display text-2xl md:text-3xl">{v.title}</h3>
-          {v.description && <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{v.description}</p>}
+          {v.description && (
+            <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{v.description}</p>
+          )}
         </div>
         <div className="rounded-full bg-foreground text-background p-3 opacity-0 group-hover:opacity-100 transition">
           <Play className="h-4 w-4 fill-current" />
@@ -60,11 +86,22 @@ export function Showreel() {
     (async () => {
       const { data } = await supabase
         .from("videos")
-        .select("id,title,description,category,video_url,thumbnail_url")
+        .select(
+          "id,title,description,category,storage_path,video_url,thumbnail_storage_path,thumbnail_url",
+        )
         .eq("is_published", true)
         .order("sort_order", { ascending: true })
         .order("created_at", { ascending: false });
-      setVideos((data as Video[]) ?? []);
+      const rows = (data as Video[]) ?? [];
+      const resolved = await Promise.all(
+        rows.map(async (video) => ({
+          ...video,
+          video_url:
+            (await resolveVideoAsset(video.storage_path, video.video_url)) ?? video.video_url,
+          thumbnail_url: await resolveVideoAsset(video.thumbnail_storage_path, video.thumbnail_url),
+        })),
+      );
+      setVideos(resolved);
       setLoaded(true);
     })();
   }, []);
@@ -89,7 +126,9 @@ export function Showreel() {
         </div>
 
         <div className="mt-16 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {videos.map((v, i) => <VideoCard key={v.id} v={v} i={i} />)}
+          {videos.map((v, i) => (
+            <VideoCard key={v.id} v={v} i={i} />
+          ))}
         </div>
       </div>
     </section>

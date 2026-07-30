@@ -12,6 +12,7 @@ CREATE TABLE public.videos (
   category text NOT NULL DEFAULT 'portfolio',
   storage_path text NOT NULL,
   video_url text NOT NULL,
+  thumbnail_storage_path text,
   thumbnail_url text,
   sort_order integer NOT NULL DEFAULT 0,
   is_published boolean NOT NULL DEFAULT true,
