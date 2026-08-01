@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Check, Upload, ArrowRight, Sparkles, Loader2 } from "lucide-react";
+import { Check, Upload, ArrowRight, Sparkles, Loader2, Zap } from "lucide-react";
 import { Particles } from "@/components/site/Particles";
 
 export const Route = createFileRoute("/contact")({
