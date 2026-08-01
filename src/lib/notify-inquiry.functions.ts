@@ -151,6 +151,14 @@ export const notifyInquiry = createServerFn({ method: "POST" })
   </div>`
       : ""
   }
+  ${
+    data.attachments?.length
+      ? `<div style="margin-top:24px;padding-top:24px;border-top:1px solid #222;">
+    <div style="color:#888;font-size:12px;margin-bottom:8px;">ATTACHMENTS (${data.attachments.length})</div>
+    <div style="color:#fff;font-size:14px;line-height:1.8;">${data.attachments.map((a) => esc(a.name)).join("<br>")}</div>
+  </div>`
+      : ""
+  }
   <div style="margin-top:32px;padding-top:24px;border-top:1px solid #222;color:#666;font-size:12px;">Reply directly to <a style="color:#e0a06a;" href="mailto:${esc(data.email)}">${esc(data.email)}</a></div>
 </div></body></html>`;
 
@@ -162,6 +170,7 @@ export const notifyInquiry = createServerFn({ method: "POST" })
       replyTo: `${data.full_name} <${data.email}>`,
       subject,
       html: ownerHtml,
+      attachments: data.attachments ?? [],
     });
 
     // ---------- 2) Confirmation to client ----------
