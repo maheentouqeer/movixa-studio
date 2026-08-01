@@ -201,7 +201,25 @@ function ContactPage() {
                       <SelectTrigger><SelectValue placeholder="Select timeline" /></SelectTrigger>
                       <SelectContent>{TIMELINES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
                     </Select>
+                    <AnimatePresence>
+                      {isUrgent && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="mt-3 flex items-start gap-3 rounded-2xl border border-[oklch(0.78_0.17_55)]/40 bg-[oklch(0.78_0.17_55)]/10 p-4">
+                            <Zap className="mt-0.5 h-4 w-4 shrink-0 text-[oklch(0.78_0.17_55)]" />
+                            <p className="text-sm text-muted-foreground">
+                              <span className="text-foreground">Urgent delivery:</span> your project will be delivered in <span className="text-foreground">2–4 business days</span>, with a <span className="text-foreground">$100 urgency cost</span> added to the quote.
+                            </p>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </Field>
+
                 </div>
 
                 <Field label="Project description">
