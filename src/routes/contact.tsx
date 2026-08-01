@@ -53,6 +53,8 @@ function ContactPage() {
   const set = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) =>
     setForm((f) => ({ ...f, [k]: v }));
 
+  const isUrgent = form.project_timeline === URGENT_TIMELINE;
+
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const parsed = schema.safeParse(form);
@@ -60,10 +62,18 @@ function ContactPage() {
       toast.error(parsed.error.issues[0]?.message ?? "Please review the form");
       return;
     }
+    const totalBytes = files.reduce((n, f) => n + f.size, 0);
+    if (totalBytes > 6 * 1024 * 1024) {
+      toast.error("Attachments must total under 6 MB. Please send larger files by email.");
+      return;
+    }
     setSubmitting(true);
     try {
       const { consent, ...payload } = parsed.data;
       void consent;
+      const description = isUrgent
+        ? `${payload.project_description || ""}\n\n[URGENT] Delivery in 2–4 business days · +$100 urgency fee.`.trim()
+        : payload.project_description || null;
       const { error } = await supabase.from("contact_submissions").insert({
         ...payload,
         company_name: payload.company_name || null,
@@ -72,11 +82,27 @@ function ContactPage() {
         service_required: payload.service_required || null,
         estimated_budget: payload.estimated_budget || null,
         project_timeline: payload.project_timeline || null,
-        project_description: payload.project_description || null,
-        file_urls: [],
+        project_description: description,
+        file_urls: files.map((f) => f.name),
       });
       if (error) throw error;
       try {
+        const attachments = await Promise.all(
+          files.map(
+            (f) =>
+              new Promise<{ name: string; type: string; data: string }>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () =>
+                  resolve({
+                    name: f.name,
+                    type: f.type || "application/octet-stream",
+                    data: String(reader.result).split(",")[1] ?? "",
+                  });
+                reader.onerror = () => reject(reader.error);
+                reader.readAsDataURL(f);
+              }),
+          ),
+        );
         await notifyInquiry({
           data: {
             full_name: payload.full_name,
@@ -88,12 +114,14 @@ function ContactPage() {
             service_required: payload.service_required || null,
             estimated_budget: payload.estimated_budget || null,
             project_timeline: payload.project_timeline || null,
-            project_description: payload.project_description || null,
+            project_description: description,
+            attachments,
           },
         });
       } catch (notifyErr) {
         console.error("Notification email failed", notifyErr);
       }
+
       setDone(true);
     } catch (err) {
       console.error(err);
