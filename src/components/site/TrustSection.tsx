@@ -64,7 +64,7 @@ export function TrustSection() {
               transition={{ duration: 0.6, delay: i * 0.06 }}
               className="text-center"
             >
-              <Counter to={s.value} suffix={s.suffix} decimals={s.decimals ?? 0} />
+              <Counter to={s.value} suffix={s.suffix} decimals={0} />
               <div className="mt-3 text-xs uppercase tracking-widest text-muted-foreground">
                 {s.label}
               </div>

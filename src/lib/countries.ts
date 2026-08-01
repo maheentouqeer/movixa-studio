@@ -15,10 +15,11 @@ export const SERVICES = [
 ];
 
 export const BUDGETS = [
-  "Under $2,000", "$2,000 – $5,000", "$5,000 – $10,000", "$10,000 – $25,000",
-  "$25,000 – $50,000", "$50,000+", "Not sure yet",
+  "Under $100", "$500", "$1000", "Not sure yet",
 ];
 
 export const TIMELINES = [
-  "ASAP (within 1 week)", "1–2 weeks", "2–4 weeks", "1–2 months", "Flexible",
+  "1 week", "1–2 weeks", "Flexible", "Urgent",
 ];
+
+export const URGENT_TIMELINE = "Urgent";

@@ -3,6 +3,12 @@ import { z } from "zod";
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_mail/gmail/v1";
 
+const attachmentSchema = z.object({
+  name: z.string().min(1).max(255),
+  type: z.string().max(200).optional().nullable(),
+  data: z.string().max(9_000_000), // base64
+});
+
 const schema = z.object({
   full_name: z.string().min(1).max(200),
   company_name: z.string().max(200).optional().nullable(),
@@ -14,7 +20,10 @@ const schema = z.object({
   estimated_budget: z.string().max(200).optional().nullable(),
   project_timeline: z.string().max(200).optional().nullable(),
   project_description: z.string().max(6000).optional().nullable(),
+  attachments: z.array(attachmentSchema).max(10).optional().nullable(),
 });
+
+type Attachment = z.infer<typeof attachmentSchema>;
 
 function b64url(input: string): string {
   const b64 = Buffer.from(input, "utf-8").toString("base64");
@@ -26,6 +35,10 @@ function esc(v: string | null | undefined): string {
   return v.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
+function chunk76(s: string): string {
+  return (s.match(/.{1,76}/g) ?? []).join("\r\n");
+}
+
 async function sendMail(opts: {
   lovableKey: string;
   gmailKey: string;
@@ -34,17 +47,40 @@ async function sendMail(opts: {
   replyTo?: string;
   subject: string;
   html: string;
+  attachments?: Attachment[];
 }) {
-  const rfc = [
+  const headers = [
     `To: ${opts.to}`,
     `From: ${opts.from}`,
     ...(opts.replyTo ? [`Reply-To: ${opts.replyTo}`] : []),
     `Subject: ${opts.subject}`,
     "MIME-Version: 1.0",
-    'Content-Type: text/html; charset="UTF-8"',
-    "",
-    opts.html,
-  ].join("\r\n");
+  ];
+
+  let rfc: string;
+  const atts = opts.attachments ?? [];
+  if (atts.length) {
+    const boundary = `movixa_${Math.random().toString(36).slice(2)}`;
+    const parts = [
+      `--${boundary}`,
+      'Content-Type: text/html; charset="UTF-8"',
+      "",
+      opts.html,
+      ...atts.flatMap((a) => [
+        `--${boundary}`,
+        `Content-Type: ${a.type || "application/octet-stream"}; name="${a.name.replace(/"/g, "")}"`,
+        "Content-Transfer-Encoding: base64",
+        `Content-Disposition: attachment; filename="${a.name.replace(/"/g, "")}"`,
+        "",
+        chunk76(a.data),
+      ]),
+      `--${boundary}--`,
+      "",
+    ];
+    rfc = [...headers, `Content-Type: multipart/mixed; boundary="${boundary}"`, "", ...parts].join("\r\n");
+  } else {
+    rfc = [...headers, 'Content-Type: text/html; charset="UTF-8"', "", opts.html].join("\r\n");
+  }
 
   const res = await fetch(`${GATEWAY_URL}/users/me/messages/send`, {
     method: "POST",
@@ -115,6 +151,14 @@ export const notifyInquiry = createServerFn({ method: "POST" })
   </div>`
       : ""
   }
+  ${
+    data.attachments?.length
+      ? `<div style="margin-top:24px;padding-top:24px;border-top:1px solid #222;">
+    <div style="color:#888;font-size:12px;margin-bottom:8px;">ATTACHMENTS (${data.attachments.length})</div>
+    <div style="color:#fff;font-size:14px;line-height:1.8;">${data.attachments.map((a) => esc(a.name)).join("<br>")}</div>
+  </div>`
+      : ""
+  }
   <div style="margin-top:32px;padding-top:24px;border-top:1px solid #222;color:#666;font-size:12px;">Reply directly to <a style="color:#e0a06a;" href="mailto:${esc(data.email)}">${esc(data.email)}</a></div>
 </div></body></html>`;
 
@@ -126,6 +170,7 @@ export const notifyInquiry = createServerFn({ method: "POST" })
       replyTo: `${data.full_name} <${data.email}>`,
       subject,
       html: ownerHtml,
+      attachments: data.attachments ?? [],
     });
 
     // ---------- 2) Confirmation to client ----------

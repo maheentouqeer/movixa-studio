@@ -4,14 +4,14 @@ import { useState, type FormEvent } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { notifyInquiry } from "@/lib/notify-inquiry.functions";
-import { COUNTRIES, SERVICES, BUDGETS, TIMELINES } from "@/lib/countries";
+import { COUNTRIES, SERVICES, BUDGETS, TIMELINES, URGENT_TIMELINE } from "@/lib/countries";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Check, Upload, ArrowRight, Sparkles, Loader2 } from "lucide-react";
+import { Check, Upload, ArrowRight, Sparkles, Loader2, Zap } from "lucide-react";
 import { Particles } from "@/components/site/Particles";
 
 export const Route = createFileRoute("/contact")({
@@ -53,6 +53,8 @@ function ContactPage() {
   const set = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) =>
     setForm((f) => ({ ...f, [k]: v }));
 
+  const isUrgent = form.project_timeline === URGENT_TIMELINE;
+
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const parsed = schema.safeParse(form);
@@ -60,10 +62,18 @@ function ContactPage() {
       toast.error(parsed.error.issues[0]?.message ?? "Please review the form");
       return;
     }
+    const totalBytes = files.reduce((n, f) => n + f.size, 0);
+    if (totalBytes > 6 * 1024 * 1024) {
+      toast.error("Attachments must total under 6 MB. Please send larger files by email.");
+      return;
+    }
     setSubmitting(true);
     try {
       const { consent, ...payload } = parsed.data;
       void consent;
+      const description = isUrgent
+        ? `${payload.project_description || ""}\n\n[URGENT] Delivery in 2–4 business days · +$100 urgency fee.`.trim()
+        : payload.project_description || null;
       const { error } = await supabase.from("contact_submissions").insert({
         ...payload,
         company_name: payload.company_name || null,
@@ -72,11 +82,27 @@ function ContactPage() {
         service_required: payload.service_required || null,
         estimated_budget: payload.estimated_budget || null,
         project_timeline: payload.project_timeline || null,
-        project_description: payload.project_description || null,
-        file_urls: [],
+        project_description: description,
+        file_urls: files.map((f) => f.name),
       });
       if (error) throw error;
       try {
+        const attachments = await Promise.all(
+          files.map(
+            (f) =>
+              new Promise<{ name: string; type: string; data: string }>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () =>
+                  resolve({
+                    name: f.name,
+                    type: f.type || "application/octet-stream",
+                    data: String(reader.result).split(",")[1] ?? "",
+                  });
+                reader.onerror = () => reject(reader.error);
+                reader.readAsDataURL(f);
+              }),
+          ),
+        );
         await notifyInquiry({
           data: {
             full_name: payload.full_name,
@@ -88,12 +114,14 @@ function ContactPage() {
             service_required: payload.service_required || null,
             estimated_budget: payload.estimated_budget || null,
             project_timeline: payload.project_timeline || null,
-            project_description: payload.project_description || null,
+            project_description: description,
+            attachments,
           },
         });
       } catch (notifyErr) {
         console.error("Notification email failed", notifyErr);
       }
+
       setDone(true);
     } catch (err) {
       console.error(err);
@@ -173,7 +201,25 @@ function ContactPage() {
                       <SelectTrigger><SelectValue placeholder="Select timeline" /></SelectTrigger>
                       <SelectContent>{TIMELINES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
                     </Select>
+                    <AnimatePresence>
+                      {isUrgent && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="mt-3 flex items-start gap-3 rounded-2xl border border-[oklch(0.78_0.17_55)]/40 bg-[oklch(0.78_0.17_55)]/10 p-4">
+                            <Zap className="mt-0.5 h-4 w-4 shrink-0 text-[oklch(0.78_0.17_55)]" />
+                            <p className="text-sm text-muted-foreground">
+                              <span className="text-foreground">Urgent delivery:</span> your project will be delivered in <span className="text-foreground">2–4 business days</span>, with a <span className="text-foreground">$100 urgency cost</span> added to the quote.
+                            </p>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </Field>
+
                 </div>
 
                 <Field label="Project description">
@@ -192,7 +238,7 @@ function ContactPage() {
                       onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
                     />
                   </label>
-                  <p className="mt-2 text-xs text-muted-foreground">Files are noted with your inquiry. We'll follow up to transfer securely.</p>
+                  <p className="mt-2 text-xs text-muted-foreground">Attached files are sent straight to our inbox with your brief. Max 6 MB total.</p>
                 </Field>
 
                 <label className="flex items-start gap-3 cursor-pointer">
