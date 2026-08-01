@@ -238,7 +238,7 @@ function ContactPage() {
                       onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
                     />
                   </label>
-                  <p className="mt-2 text-xs text-muted-foreground">Files are noted with your inquiry. We'll follow up to transfer securely.</p>
+                  <p className="mt-2 text-xs text-muted-foreground">Attached files are sent straight to our inbox with your brief. Max 6 MB total.</p>
                 </Field>
 
                 <label className="flex items-start gap-3 cursor-pointer">
