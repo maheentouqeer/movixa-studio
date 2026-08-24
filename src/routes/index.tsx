@@ -121,6 +121,8 @@ function Home() {
       <ThreeWays />
       <Showreel />
       <Portfolio />
+      <AIFilmSection />
+      <BrandVisualsSection />
 
       <BehindProcess />
       <Capabilities />
