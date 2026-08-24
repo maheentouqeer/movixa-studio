@@ -123,6 +123,7 @@ function Home() {
       <Portfolio />
       <AIFilmSection />
       <BrandVisualsSection />
+      <DigitalExperiences />
 
       <BehindProcess />
       <Capabilities />
