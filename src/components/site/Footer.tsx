@@ -45,6 +45,11 @@ export function Footer() {
                 </a>
               </li>
               <li>
+                <a href="/#lab" className="hover:text-foreground text-muted-foreground">
+                  Lab
+                </a>
+              </li>
+              <li>
                 <Link to="/contact" className="hover:text-foreground text-muted-foreground">
                   Contact
                 </Link>
