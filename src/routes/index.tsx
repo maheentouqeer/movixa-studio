@@ -104,15 +104,24 @@ function Home() {
       <LoadingCurtain />
       <Hero />
       <Marquee />
+      <PillarSequence />
+      <ThreeWays />
+      <Showreel />
       <Portfolio />
-      <Services />
+      <AIFilmSection />
+      <BrandVisualsSection />
+      <DigitalExperiences />
+      <IdeaToFrame />
       <BehindProcess />
+      <Capabilities />
       <TechStack />
+      <MovixaLab />
       <Industries />
-      <Process />
       <TrustSection />
+      <WhyMovixa />
       <Testimonials />
       <FAQ />
+      <FollowTheWork />
       <CTA />
     </>
   );
