@@ -41,6 +41,19 @@ import {
 import { BehindProcess } from "@/components/site/BehindProcess";
 import { TechStack } from "@/components/site/TechStack";
 import { TrustSection } from "@/components/site/TrustSection";
+import { Showreel } from "@/components/site/Showreel";
+import { PillarSequence } from "@/components/site/PillarSequence";
+import {
+  ThreeWays,
+  Capabilities,
+  IdeaToFrame,
+  DigitalExperiences,
+  AIFilmSection,
+  BrandVisualsSection,
+  MovixaLab,
+  WhyMovixa,
+  FollowTheWork,
+} from "@/components/site/sections";
 import { supabase } from "@/integrations/supabase/client";
 
 const Hero3D = lazy(() => import("@/components/site/Hero3D").then((m) => ({ default: m.Hero3D })));
@@ -104,15 +117,24 @@ function Home() {
       <LoadingCurtain />
       <Hero />
       <Marquee />
+      <PillarSequence />
+      <ThreeWays />
+      <Showreel />
       <Portfolio />
-      <Services />
+      <AIFilmSection />
+      <BrandVisualsSection />
+      <DigitalExperiences />
+      <IdeaToFrame />
       <BehindProcess />
+      <Capabilities />
       <TechStack />
+      <MovixaLab />
       <Industries />
-      <Process />
       <TrustSection />
+      <WhyMovixa />
       <Testimonials />
       <FAQ />
+      <FollowTheWork />
       <CTA />
     </>
   );
