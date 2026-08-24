@@ -121,10 +121,7 @@ function Home() {
       <ThreeWays />
       <Showreel />
       <Portfolio />
-      <AIFilmSection />
-      <BrandVisualsSection />
-      <DigitalExperiences />
-      <IdeaToFrame />
+
       <BehindProcess />
       <Capabilities />
       <TechStack />
