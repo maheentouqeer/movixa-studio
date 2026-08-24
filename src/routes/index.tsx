@@ -124,6 +124,7 @@ function Home() {
       <AIFilmSection />
       <BrandVisualsSection />
       <DigitalExperiences />
+      <IdeaToFrame />
 
       <BehindProcess />
       <Capabilities />
