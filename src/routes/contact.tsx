@@ -155,7 +155,7 @@ function ContactPage() {
               </motion.div>
               <h2 className="mt-8 text-display text-4xl md:text-5xl">Your brief just landed.</h2>
               <p className="mt-4 text-muted-foreground max-w-md mx-auto">
-                We'll review your project and reply within one business day. In the meantime, a confirmation is on its way to <span className="text-foreground">{form.email}</span>.
+                We'll review your project and reply within 24 hours. In the meantime, a confirmation is on its way to <span className="text-foreground">{form.email}</span>.
               </p>
               <a href="/" className="mt-10 inline-flex items-center gap-2 rounded-full glass px-6 py-3 text-sm hover:bg-white/10 transition">
                 Back to home <ArrowRight className="h-4 w-4" />
@@ -165,16 +165,16 @@ function ContactPage() {
             <motion.div key="form" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
               <div className="text-center">
                 <div className="inline-flex items-center gap-2 rounded-full glass px-4 py-1.5 text-xs text-muted-foreground">
-                  <Sparkles className="h-3 w-3 text-[oklch(0.78_0.17_55)]" /> Reply within 24 hours
+                  <Sparkles className="h-3 w-3 text-[oklch(0.78_0.17_55)]" /> Usually responds within 24 hours
                 </div>
-                <h1 className="mt-6 text-display text-5xl md:text-7xl">Tell us about<br /><span className="gradient-text">your project.</span></h1>
-                <p className="mt-4 text-muted-foreground max-w-md mx-auto">The more detail you share, the better we can shape your first proposal.</p>
+                <h1 className="mt-6 text-display text-5xl md:text-7xl">Let's make<br /><span className="gradient-text">something impossible.</span></h1>
+                <p className="mt-4 text-muted-foreground max-w-md mx-auto">Tell us what you're imagining. We'll turn it into a clear creative direction.</p>
               </div>
 
               <form onSubmit={onSubmit} className="mt-16 glass rounded-[2rem] p-6 md:p-10 space-y-8">
                 <div className="grid md:grid-cols-2 gap-6">
                   <Field label="Full name *"><Input value={form.full_name} onChange={(e) => set("full_name", e.target.value)} required maxLength={120} /></Field>
-                  <Field label="Company name"><Input value={form.company_name} onChange={(e) => set("company_name", e.target.value)} maxLength={120} /></Field>
+                  <Field label="Company / Brand"><Input value={form.company_name} onChange={(e) => set("company_name", e.target.value)} maxLength={120} /></Field>
                   <Field label="Email *"><Input type="email" value={form.email} onChange={(e) => set("email", e.target.value)} required maxLength={255} /></Field>
                   <Field label="Phone number"><Input value={form.phone} onChange={(e) => set("phone", e.target.value)} maxLength={40} /></Field>
                   <Field label="Country *">
@@ -184,7 +184,7 @@ function ContactPage() {
                     </Select>
                   </Field>
                   <Field label="Company website"><Input value={form.website} onChange={(e) => set("website", e.target.value)} maxLength={255} placeholder="https://" /></Field>
-                  <Field label="Service required">
+                  <Field label="What do you need?">
                     <Select value={form.service_required} onValueChange={(v) => set("service_required", v)}>
                       <SelectTrigger><SelectValue placeholder="Select service" /></SelectTrigger>
                       <SelectContent>{SERVICES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
@@ -226,7 +226,7 @@ function ContactPage() {
                   <Textarea rows={5} value={form.project_description} onChange={(e) => set("project_description", e.target.value)} maxLength={4000} placeholder="Tell us the story, the audience, the mood, references, and anything else that matters." />
                 </Field>
 
-                <Field label="Attachments (logo, brief, references)">
+                <Field label="Reference links / file upload">
                   <label className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border p-8 cursor-pointer hover:bg-white/5 transition">
                     <Upload className="h-5 w-5 text-muted-foreground" />
                     <span className="mt-2 text-sm text-muted-foreground">

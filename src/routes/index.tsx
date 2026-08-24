@@ -43,6 +43,7 @@ import { TechStack } from "@/components/site/TechStack";
 import { TrustSection } from "@/components/site/TrustSection";
 import { Showreel } from "@/components/site/Showreel";
 import { PillarSequence } from "@/components/site/PillarSequence";
+import { ScrollSequence } from "@/components/site/ScrollSequence";
 import {
   ThreeWays,
   Capabilities,
@@ -59,10 +60,12 @@ import { supabase } from "@/integrations/supabase/client";
 const Hero3D = lazy(() => import("@/components/site/Hero3D").then((m) => ({ default: m.Hero3D })));
 
 const HERO_STATS = [
-  { value: 18, suffix: "+", label: "Projects completed" },
-  { value: 8, suffix: "+", label: "Industries served" },
-  { value: 100, suffix: "%", label: "On-time delivery" },
+  { value: 3, suffix: "", label: "Creative disciplines" },
+  { value: 24, suffix: "H", label: "Project response" },
+  { value: 1, suffix: "", label: "Integrated studio" },
 ];
+
+const ROTATING_PHRASES = ["Websites.", "AI Films.", "CGI Advertising.", "Brand Visuals."];
 
 function CountUpNumber({
   value,
@@ -88,6 +91,34 @@ function CountUpNumber({
     <span ref={ref} className={className}>
       <motion.span>{rounded}</motion.span>
       {suffix}
+    </span>
+  );
+}
+
+function RotatingPhrase() {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setIndex((current) => (current + 1) % ROTATING_PHRASES.length);
+    }, 1800);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  return (
+    <span className="relative inline-block min-w-[8.5ch] overflow-hidden align-bottom text-[oklch(0.78_0.17_55)]">
+      <AnimatePresence mode="wait">
+        <motion.span
+          key={ROTATING_PHRASES[index]}
+          initial={{ y: "100%", opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: "-100%", opacity: 0 }}
+          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+          className="inline-block"
+        >
+          {ROTATING_PHRASES[index]}
+        </motion.span>
+      </AnimatePresence>
     </span>
   );
 }
@@ -121,7 +152,13 @@ function Home() {
       <ThreeWays />
       <Showreel />
       <Portfolio />
+      <HorizontalShowcase />
       <AIFilmSection />
+      <ScrollSequence
+        label="Frame Sequence System"
+        title="Scroll becomes direction."
+        description="A reusable high-DPI canvas sequence is ready for Movixa video frames, with batched preloading, scrubbed playback, reduced-motion fallback and responsive contain rendering."
+      />
       <BrandVisualsSection />
       <DigitalExperiences />
       <IdeaToFrame />
@@ -133,7 +170,6 @@ function Home() {
       <Industries />
       <TrustSection />
       <WhyMovixa />
-      <Testimonials />
       <FAQ />
       <FollowTheWork />
       <CTA />
@@ -209,7 +245,7 @@ function Hero() {
               <span className="absolute inset-0 rounded-full bg-[oklch(0.78_0.17_55)] animate-ping" />
               <span className="relative rounded-full bg-[oklch(0.78_0.17_55)] h-1.5 w-1.5" />
             </span>
-            Cinematic AI Creative Studio
+            MOVIXA / CREATIVE TECHNOLOGY STUDIO
           </motion.div>
 
           <motion.h1
@@ -218,11 +254,11 @@ function Hero() {
             transition={{ duration: 1, delay: 1.6, ease: [0.22, 1, 0.36, 1] }}
             className="mt-6 text-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl"
           >
-            We create
+            WE CREATE
             <br />
-            <span className="gradient-text animate-gradient">cinematic AI</span>
+            <span className="gradient-text animate-gradient">DIGITAL WORLDS.</span>
             <br />
-            experiences.
+            <RotatingPhrase />
           </motion.h1>
 
           <motion.p
@@ -242,10 +278,10 @@ function Hero() {
             className="mt-10 flex flex-wrap gap-3"
           >
             <MagneticButton href="/contact">
-              Start your project <ArrowRight className="h-4 w-4" />
+              START A PROJECT <ArrowRight className="h-4 w-4" />
             </MagneticButton>
             <MagneticButton href="#work" variant="ghost">
-              <Play className="h-4 w-4" /> View portfolio
+              <Play className="h-4 w-4" /> EXPLORE THE WORK
             </MagneticButton>
           </motion.div>
 
@@ -332,6 +368,39 @@ interface FeaturedVideo {
   thumbnail_url: string | null;
 }
 
+const EDITORIAL_PROJECTS = [
+  {
+    title: "CGI Sneaker Launch",
+    category: "CGI Product Ads",
+    description: "A chrome-and-motion launch film built around product desire.",
+  },
+  {
+    title: "Interactive Product Screen CGI",
+    category: "Digital Experiences",
+    description: "A tactile screen experience with product motion and depth.",
+  },
+  {
+    title: "Miniature Construction World",
+    category: "Miniature Worlds",
+    description: "Architectural scale, tiny machines and cinematic worldbuilding.",
+  },
+  {
+    title: "Premium Juice Commercial",
+    category: "AI Commercial",
+    description: "A polished product spot with liquid, light and freshness cues.",
+  },
+  {
+    title: "Cinematic Embroidery Logo Reveal",
+    category: "Logo Motion",
+    description: "A brand mark revealed through texture, thread and camera rhythm.",
+  },
+  {
+    title: "BMW M4 Cinematic Transformation",
+    category: "Cinematic Films",
+    description: "A transformation sequence built for speed, material and attitude.",
+  },
+];
+
 const VIDEO_BUCKET = "videos";
 
 async function resolveVideoAsset(path: string | null | undefined, fallback?: string | null) {
@@ -405,24 +474,104 @@ function Portfolio() {
             ))}
           </div>
         ) : (
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mt-20 rounded-3xl glass p-10 md:p-14 text-center"
-          >
-            <h3 className="text-display text-3xl md:text-4xl">No featured videos yet.</h3>
-            <p className="mx-auto mt-4 max-w-xl text-sm text-muted-foreground">
-              Upload and publish videos from the admin panel and they will appear here
-              automatically.
-            </p>
+          <>
+            <div className="mt-20 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {EDITORIAL_PROJECTS.map((project, i) => (
+                <EditorialProjectCard key={project.title} project={project} index={i} />
+              ))}
+            </div>
             {loadError && (
-              <p className="mx-auto mt-4 max-w-xl text-xs text-red-300">
+              <p className="mx-auto mt-8 max-w-xl text-center text-xs text-red-300">
                 Database message: {loadError}
               </p>
             )}
-          </motion.div>
+          </>
         )}
+      </div>
+    </section>
+  );
+}
+
+function EditorialProjectCard({
+  project,
+  index,
+}: {
+  project: (typeof EDITORIAL_PROJECTS)[number];
+  index: number;
+}) {
+  return (
+    <motion.a
+      href="/contact"
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration: 0.7, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
+      className="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-white/10 bg-black"
+    >
+      <div className="absolute inset-0 grid-bg opacity-30" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,oklch(0.78_0.17_55_/_0.28),transparent_38%),linear-gradient(150deg,oklch(0.18_0.012_260),oklch(0.08_0.012_260))]" />
+      <motion.div
+        aria-hidden
+        animate={{ rotate: [0, 8, 0], scale: [1, 1.04, 1] }}
+        transition={{ duration: 9, repeat: Infinity, delay: index * 0.35, ease: "easeInOut" }}
+        className="absolute left-1/2 top-[42%] h-36 w-36 -translate-x-1/2 -translate-y-1/2 rounded-[2rem] border border-white/15 bg-white/10 shadow-[0_30px_90px_-30px_oklch(0.78_0.17_55_/_0.7)] backdrop-blur-xl"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/25 to-transparent" />
+      <div className="absolute left-5 top-5 text-xs uppercase tracking-[0.22em] text-[oklch(0.86_0.12_70)]">
+        {project.category}
+      </div>
+      <div className="absolute bottom-6 left-6 right-6">
+        <h3 className="text-display text-3xl transition-transform duration-300 group-hover:-translate-y-2">
+          {project.title}
+        </h3>
+        <p className="mt-3 text-sm text-muted-foreground">{project.description}</p>
+        <span className="mt-5 inline-flex text-xs uppercase tracking-[0.22em] text-foreground opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+          View
+        </span>
+      </div>
+    </motion.a>
+  );
+}
+
+function HorizontalShowcase() {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
+  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-62%"]);
+
+  return (
+    <section ref={ref} className="relative hidden h-[260vh] md:block">
+      <div className="sticky top-0 flex h-screen items-center overflow-hidden border-y border-border">
+        <div className="absolute inset-0 grid-bg opacity-20" />
+        <div className="relative w-full">
+          <div className="mx-auto mb-10 max-w-7xl px-6">
+            <div className="text-xs uppercase tracking-[0.26em] text-muted-foreground">
+              Film Reel
+            </div>
+            <h2 className="mt-4 text-display text-5xl">Built to be watched.</h2>
+          </div>
+          <motion.div style={{ x }} className="flex gap-6 px-[calc((100vw-80rem)/2+1.5rem)]">
+            {EDITORIAL_PROJECTS.map((project) => (
+              <motion.a
+                href="/contact"
+                key={project.title}
+                className="group relative h-[58vh] w-[56vw] max-w-[760px] shrink-0 overflow-hidden rounded-xl border border-white/10 bg-black"
+              >
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_45%_35%,oklch(0.78_0.17_55_/_0.3),transparent_40%),linear-gradient(135deg,oklch(0.18_0.012_260),black)]" />
+                <div className="absolute inset-0 grid-bg opacity-25 transition-opacity group-hover:opacity-45" />
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
+                <div className="absolute bottom-8 left-8 right-8">
+                  <div className="text-xs uppercase tracking-[0.24em] text-[oklch(0.86_0.12_70)]">
+                    {project.category}
+                  </div>
+                  <h3 className="mt-3 max-w-lg text-display text-5xl">{project.title}</h3>
+                  <p className="mt-4 max-w-md text-sm text-muted-foreground">
+                    {project.description}
+                  </p>
+                </div>
+              </motion.a>
+            ))}
+          </motion.div>
+        </div>
       </div>
     </section>
   );
@@ -746,50 +895,36 @@ function Testimonials() {
 
 const FAQS = [
   {
-    q: "How long does a typical project take?",
-    a: (
-      <>
-        <p>
-          Most short-form videos under one minute are delivered within{" "}
-          <strong>3-4 business days</strong>.
-        </p>
-        <p className="mt-3">
-          Larger projects over one minute typically require <strong>5-7 business days</strong>,
-          depending on complexity and revisions.
-        </p>
-      </>
-    ),
+    q: "How long does a project take?",
+    a: "Short-form videos under one minute typically take around 3-4 days depending on complexity, references and revision requirements. Larger productions or videos over one minute can take around a week or longer.",
   },
   {
-    q: "How is pricing structured?",
-    a: "Pricing depends on animation complexity, video duration, number of scenes and delivery deadline. Every project receives a custom quote before production begins.",
+    q: "What can Movixa create?",
+    a: "We create cinematic AI commercials, CGI product advertisements, digital experiences, interactive websites, brand visuals, social campaigns and custom visual projects.",
   },
   {
-    q: "How many revisions are included?",
-    a: "Every project includes two rounds of revisions. Additional revisions can be added if required.",
+    q: "Can you create a website for my brand?",
+    a: "Yes. We design and develop premium websites ranging from editorial brand sites to interactive 3D and scroll-driven digital experiences.",
   },
   {
-    q: "Who owns the final files?",
-    a: "Once the final payment is completed, you receive full commercial usage rights for the delivered content.",
+    q: "Can you create an advertisement for my product?",
+    a: "Yes. Send us your product, references and objective. We can develop the concept, visual direction, AI/CGI production and final advertisement.",
   },
   {
-    q: "What do you deliver?",
-    a: (
-      <>
-        <p>Depending on the project you may receive:</p>
-        <ul className="mt-3 space-y-2">
-          <li>4K or Full HD video</li>
-          <li>Social media versions</li>
-          <li>Image assets</li>
-          <li>Transparent renders</li>
-          <li>Source files, when included</li>
-        </ul>
-      </>
-    ),
+    q: "How does the process work?",
+    a: "Brief -> Concept -> Production -> Review -> Delivery.",
+  },
+  {
+    q: "Can you work with an existing brand identity?",
+    a: "Yes. We can work within an existing identity or develop a new visual direction.",
+  },
+  {
+    q: "How do revisions work?",
+    a: "Revision scope is agreed before production. We focus on structured feedback so each round moves the project closer to the intended result.",
   },
   {
     q: "Do you sign NDAs?",
-    a: "Yes. We are happy to sign Non-Disclosure Agreements before discussing confidential projects.",
+    a: "Yes. NDA arrangements can be discussed when confidentiality is required.",
   },
 ];
 

@@ -9,17 +9,16 @@ export const COUNTRIES = [
 ];
 
 export const SERVICES = [
-  "AI Commercials", "CGI Product Ads", "Architectural Transformations", "Logo Animations",
-  "Miniature AI Videos", "Cinematic AI Films", "Real Estate Visualization", "Social Media Ads",
-  "Custom AI Project",
+  "Website", "AI Commercial", "CGI Product Ad", "Brand Visuals", "Social Content",
+  "3D / Interactive", "Digital Experiences", "Architectural CGI", "Logo Motion", "Other",
 ];
 
 export const BUDGETS = [
-  "Under $100", "$500", "$1000", "Not sure yet",
+  "Under $500", "$500-$1,000", "$1,000-$3,000", "$3,000+", "Not sure yet",
 ];
 
 export const TIMELINES = [
-  "1 week", "1–2 weeks", "Flexible", "Urgent",
+  "3-4 days", "1 week", "1-2 weeks", "Flexible", "Urgent",
 ];
 
 export const URGENT_TIMELINE = "Urgent";

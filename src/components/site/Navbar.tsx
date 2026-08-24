@@ -5,7 +5,6 @@ import { Menu, X } from "lucide-react";
 import logoAsset from "@/assets/movixa-new-logo.jpg.asset.json";
 
 const links = [
-  { to: "/", label: "Home" },
   { to: "/#work", label: "Work" },
   { to: "/#services", label: "Services" },
   { to: "/#process", label: "Process" },

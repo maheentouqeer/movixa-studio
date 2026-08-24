@@ -82,13 +82,15 @@ const titleFromFileName = (name: string) =>
 
 const CATEGORIES = [
   "Showreel",
-  "AI Commercials",
+  "AI Commercial",
   "CGI Product Ads",
   "Architectural",
   "Logo Motion",
   "Cinematic Films",
   "Miniature Worlds",
   "Experiments",
+  "Digital Experiences",
+  "Brand Visuals",
 ];
 
 const VIDEO_BUCKET = "videos";
