@@ -125,6 +125,7 @@ function Home() {
       <BrandVisualsSection />
       <DigitalExperiences />
       <IdeaToFrame />
+
       <BehindProcess />
       <Capabilities />
       <TechStack />
