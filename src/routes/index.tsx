@@ -170,6 +170,7 @@ function Home() {
       <Industries />
       <TrustSection />
       <WhyMovixa />
+      <Testimonials />
       <FAQ />
       <FollowTheWork />
       <CTA />
