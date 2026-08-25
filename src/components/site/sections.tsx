@@ -394,10 +394,12 @@ function FilmStage({
   index: number;
   progress: ReturnType<typeof useScroll>["scrollYProgress"];
 }) {
-  const start = index * 0.3;
-  const opacity = useTransform(progress, [start, start + 0.18, start + 0.55], [0.25, 1, 0.45]);
-  const scale = useTransform(progress, [start, start + 0.18], [0.96, 1]);
-  const blur = useTransform(progress, [start, start + 0.18], [8, 0]);
+  const start = Math.min(index * 0.28, 0.6);
+  const mid = Math.min(start + 0.14, 0.98);
+  const end = Math.min(start + 0.4, 1);
+  const opacity = useTransform(progress, [start, mid, end], [0.25, 1, 0.45]);
+  const scale = useTransform(progress, [start, mid], [0.96, 1]);
+  const blur = useTransform(progress, [start, mid], [8, 0]);
   const filter = useTransform(blur, (b) => `blur(${b}px)`);
 
   return (
