@@ -435,37 +435,41 @@ const BRAND_LAYERS = [
 ];
 
 export function BrandVisualsSection() {
+  const { label, title, description, videoUrl } = useSectionMedia("brand_visuals", {
+    label: "Brand Visuals",
+    title: "Your brand, in motion.",
+    description:
+      "From identity systems to everyday content, we create the visual language your brand carries everywhere.",
+  });
+
   return (
     <section id="brand" className="relative border-y border-border py-32">
       <div className="mx-auto grid max-w-7xl items-center gap-16 px-6 md:grid-cols-2">
-        <div className="grid grid-cols-2 gap-3">
-          {BRAND_LAYERS.map((layer, i) => (
-            <motion.div
-              key={layer}
-              initial={{ opacity: 0, y: 24, rotate: i % 2 ? 3 : -3 }}
-              whileInView={{ opacity: 1, y: 0, rotate: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.6, delay: i * 0.07, ease: [0.22, 1, 0.36, 1] }}
-              className="flex aspect-[4/3] flex-col justify-end rounded-xl border border-white/10 bg-gradient-to-br from-white/[0.06] to-transparent p-4"
-            >
-              <span className="text-xs uppercase tracking-widest text-muted-foreground">
-                {layer}
-              </span>
-            </motion.div>
-          ))}
-        </div>
+        {videoUrl ? (
+          <SectionVideoFrame src={videoUrl} />
+        ) : (
+          <div className="grid grid-cols-2 gap-3">
+            {BRAND_LAYERS.map((layer, i) => (
+              <motion.div
+                key={layer}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.5, delay: i * 0.04, ease: [0.22, 1, 0.36, 1] }}
+                className="flex aspect-[4/3] flex-col justify-end rounded-xl border border-white/10 bg-gradient-to-br from-white/[0.06] to-transparent p-4"
+              >
+                <span className="text-xs uppercase tracking-widest text-muted-foreground">
+                  {layer}
+                </span>
+              </motion.div>
+            ))}
+          </div>
+        )}
 
         <div>
-          <SectionLabel>Brand Visuals</SectionLabel>
-          <h2 className="mt-6 text-display text-4xl leading-[0.95] md:text-6xl">
-            Your brand,
-            <br />
-            in motion.
-          </h2>
-          <p className="mt-6 max-w-md text-muted-foreground">
-            From identity systems to everyday content, we create the visual language your brand
-            carries everywhere.
-          </p>
+          <SectionLabel>{label}</SectionLabel>
+          <h2 className="mt-6 text-display text-4xl leading-[0.95] md:text-6xl">{title}</h2>
+          {description && <p className="mt-6 max-w-md text-muted-foreground">{description}</p>}
           <div className="mt-10">
             <MagneticButton href="/contact">
               Build my brand <ArrowRight className="h-4 w-4" />
@@ -476,6 +480,7 @@ export function BrandVisualsSection() {
     </section>
   );
 }
+
 
 /* ============================ THE LAB ============================ */
 
