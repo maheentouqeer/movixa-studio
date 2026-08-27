@@ -9,7 +9,7 @@ const WORLDS = [
   },
   {
     n: "02",
-    title: "AI FILM + CGI",
+    title: "AI ADS + CGI",
     line: "AI commercials, CGI product ads, cinematic transformations.",
   },
   {

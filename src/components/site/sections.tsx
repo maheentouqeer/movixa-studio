@@ -2,6 +2,12 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useState, type ReactNode } from "react";
 import { ArrowRight, ArrowUpRight, Instagram, Youtube, Facebook } from "lucide-react";
 import { MagneticButton } from "@/components/site/MagneticButton";
+import { useSectionMedia, SectionVideoFrame } from "@/components/site/SectionMedia";
+import labWebgl from "@/assets/lab-webgl.jpg";
+import labCgi from "@/assets/lab-cgi.jpg";
+import labBrand from "@/assets/lab-brand.jpg";
+import labWebsite from "@/assets/lab-website.jpg";
+
 
 export function SectionLabel({ children }: { children: ReactNode }) {
   return (
@@ -47,12 +53,10 @@ const PILLARS = [
       "Motion interfaces",
       "Product experiences",
     ],
-    cta: "Explore digital",
-    href: "#digital",
   },
   {
     n: "02",
-    title: ["AI FILM", "+ CGI"],
+    title: ["AI ADS", "+ CGI"],
     copy: "Cinematic advertising built from AI, CGI, VFX and visual storytelling.",
     items: [
       "AI commercials",
@@ -63,8 +67,6 @@ const PILLARS = [
       "Experimental advertising",
       "AI short films",
     ],
-    cta: "Explore film",
-    href: "#film",
   },
   {
     n: "03",
@@ -79,8 +81,6 @@ const PILLARS = [
       "Logo animation",
       "Marketing assets",
     ],
-    cta: "Explore brand",
-    href: "#brand",
   },
 ];
 
@@ -115,12 +115,6 @@ export function ThreeWays() {
                   {p.title[1]}
                 </h3>
                 <p className="mt-6 max-w-md text-muted-foreground">{p.copy}</p>
-                <a
-                  href={p.href}
-                  className="mt-8 inline-flex items-center gap-2 text-sm uppercase tracking-[0.2em] text-foreground/80 transition hover:text-foreground"
-                >
-                  {p.cta} <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
-                </a>
               </div>
               <ul className="grid content-start gap-y-3 self-center sm:grid-cols-2">
                 {p.items.map((item) => (
@@ -281,17 +275,19 @@ export function IdeaToFrame() {
 /* ============================ DIGITAL EXPERIENCES ============================ */
 
 export function DigitalExperiences() {
+  const { label, title, description, videoUrl } = useSectionMedia("digital_experiences", {
+    label: "Digital Experiences",
+    title: "We don't just design websites.",
+    description: "We build digital experiences.",
+  });
+
   return (
     <section id="digital" className="relative py-32">
       <div className="mx-auto grid max-w-7xl items-center gap-16 px-6 md:grid-cols-2">
         <div>
-          <SectionLabel>Digital Experiences</SectionLabel>
-          <h2 className="mt-6 text-display text-4xl leading-[0.95] md:text-6xl">
-            We don't just
-            <br />
-            design websites.
-          </h2>
-          <p className="mt-6 text-lg text-muted-foreground">We build digital experiences.</p>
+          <SectionLabel>{label}</SectionLabel>
+          <h2 className="mt-6 text-display text-4xl leading-[0.95] md:text-6xl">{title}</h2>
+          {description && <p className="mt-6 text-lg text-muted-foreground">{description}</p>}
           <ul className="mt-8 flex flex-wrap gap-2">
             {["Creative direction", "UI/UX", "3D / WebGL", "Motion", "Development"].map((t) => (
               <li key={t} className="rounded-full glass px-4 py-1.5 text-xs">
@@ -306,11 +302,13 @@ export function DigitalExperiences() {
           </div>
         </div>
 
-        <BrowserMock />
+        {videoUrl ? <SectionVideoFrame src={videoUrl} /> : <BrowserMock />}
       </div>
     </section>
   );
 }
+
+
 
 function BrowserMock() {
   return (
@@ -351,7 +349,7 @@ function BrowserMock() {
   );
 }
 
-/* ============================ AI FILM ============================ */
+/* ============================ AI ADS ============================ */
 
 const FILM_STAGES = [
   { label: "SKETCH", desc: "Concept and framing" },
@@ -367,7 +365,7 @@ export function AIFilmSection() {
     <section id="film" ref={ref} className="relative h-[260vh]">
       <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden">
         <div className="mx-auto w-full max-w-7xl px-6">
-          <SectionLabel>AI Film + CGI</SectionLabel>
+          <SectionLabel>AI Ads + CGI</SectionLabel>
           <h2 className="mt-6 text-display text-4xl leading-[0.95] md:text-6xl">
             From a prompt
             <br />
@@ -443,37 +441,41 @@ const BRAND_LAYERS = [
 ];
 
 export function BrandVisualsSection() {
+  const { label, title, description, videoUrl } = useSectionMedia("brand_visuals", {
+    label: "Brand Visuals",
+    title: "Your brand, in motion.",
+    description:
+      "From identity systems to everyday content, we create the visual language your brand carries everywhere.",
+  });
+
   return (
     <section id="brand" className="relative border-y border-border py-32">
       <div className="mx-auto grid max-w-7xl items-center gap-16 px-6 md:grid-cols-2">
-        <div className="grid grid-cols-2 gap-3">
-          {BRAND_LAYERS.map((layer, i) => (
-            <motion.div
-              key={layer}
-              initial={{ opacity: 0, y: 24, rotate: i % 2 ? 3 : -3 }}
-              whileInView={{ opacity: 1, y: 0, rotate: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.6, delay: i * 0.07, ease: [0.22, 1, 0.36, 1] }}
-              className="flex aspect-[4/3] flex-col justify-end rounded-xl border border-white/10 bg-gradient-to-br from-white/[0.06] to-transparent p-4"
-            >
-              <span className="text-xs uppercase tracking-widest text-muted-foreground">
-                {layer}
-              </span>
-            </motion.div>
-          ))}
-        </div>
+        {videoUrl ? (
+          <SectionVideoFrame src={videoUrl} />
+        ) : (
+          <div className="grid grid-cols-2 gap-3">
+            {BRAND_LAYERS.map((layer, i) => (
+              <motion.div
+                key={layer}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.5, delay: i * 0.04, ease: [0.22, 1, 0.36, 1] }}
+                className="flex aspect-[4/3] flex-col justify-end rounded-xl border border-white/10 bg-gradient-to-br from-white/[0.06] to-transparent p-4"
+              >
+                <span className="text-xs uppercase tracking-widest text-muted-foreground">
+                  {layer}
+                </span>
+              </motion.div>
+            ))}
+          </div>
+        )}
 
         <div>
-          <SectionLabel>Brand Visuals</SectionLabel>
-          <h2 className="mt-6 text-display text-4xl leading-[0.95] md:text-6xl">
-            Your brand,
-            <br />
-            in motion.
-          </h2>
-          <p className="mt-6 max-w-md text-muted-foreground">
-            From identity systems to everyday content, we create the visual language your brand
-            carries everywhere.
-          </p>
+          <SectionLabel>{label}</SectionLabel>
+          <h2 className="mt-6 text-display text-4xl leading-[0.95] md:text-6xl">{title}</h2>
+          {description && <p className="mt-6 max-w-md text-muted-foreground">{description}</p>}
           <div className="mt-10">
             <MagneticButton href="/contact">
               Build my brand <ArrowRight className="h-4 w-4" />
@@ -485,16 +487,17 @@ export function BrandVisualsSection() {
   );
 }
 
+
 /* ============================ THE LAB ============================ */
 
 const LAB = [
-  { title: "Interactive screen break", tag: "WebGL" },
-  { title: "Giant CGI product", tag: "CGI" },
-  { title: "Robotic product advertisement", tag: "AI Film" },
-  { title: "Miniature worlds", tag: "CGI" },
-  { title: "Product transformations", tag: "VFX" },
-  { title: "AI fashion", tag: "Generative" },
-  { title: "Digital environments", tag: "3D" },
+  { title: "Interactive screen break", tag: "WebGL", img: labWebgl },
+  { title: "Giant CGI product", tag: "CGI", img: labCgi },
+  { title: "Robotic product advertisement", tag: "AI Ads", img: labBrand },
+  { title: "Digital environments", tag: "3D", img: labWebsite },
+  { title: "Product transformations", tag: "VFX", img: labCgi },
+  { title: "AI fashion", tag: "Generative", img: labBrand },
+  { title: "Miniature worlds", tag: "CGI", img: labWebgl },
 ];
 
 export function MovixaLab() {
@@ -512,17 +515,23 @@ export function MovixaLab() {
           {LAB.map((l, i) => (
             <motion.div
               key={l.title}
-              initial={{ opacity: 0, scale: 0.96 }}
+              initial={{ opacity: 0, scale: 0.98 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: i * 0.05 }}
+              transition={{ duration: 0.5, delay: i * 0.04 }}
               whileHover={{ y: -6 }}
-              className={`group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.05] to-transparent p-5 ${
+              className={`group relative overflow-hidden rounded-2xl border border-white/10 bg-black p-5 ${
                 i === 0 ? "col-span-2 row-span-2" : i === 3 ? "row-span-2" : ""
               }`}
             >
-              <div className="absolute inset-0 grid-bg opacity-20 transition-opacity duration-500 group-hover:opacity-40" />
-              <div className="absolute -bottom-10 -right-10 h-32 w-32 rounded-full bg-[oklch(0.72_0.19_45)]/25 blur-3xl transition-transform duration-700 group-hover:scale-150" />
+              <img
+                src={l.img}
+                alt={l.title}
+                loading="lazy"
+                className="absolute inset-0 h-full w-full object-cover opacity-45 transition duration-700 group-hover:scale-105 group-hover:opacity-70"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+
               <div className="relative flex h-full flex-col justify-between">
                 <span className="font-mono text-[10px] uppercase tracking-widest text-[oklch(0.86_0.12_70)]">
                   {l.tag}
@@ -590,7 +599,7 @@ const COLUMNS = [
   },
   {
     title: "FILM",
-    sub: "AI Film + CGI",
+    sub: "AI Ads + CGI",
     items: ["AI commercials", "CGI product ads", "Cinematic experiments", "VFX"],
   },
   {
