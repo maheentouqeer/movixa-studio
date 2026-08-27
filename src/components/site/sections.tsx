@@ -2,6 +2,12 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useState, type ReactNode } from "react";
 import { ArrowRight, ArrowUpRight, Instagram, Youtube, Facebook } from "lucide-react";
 import { MagneticButton } from "@/components/site/MagneticButton";
+import { useSectionMedia, SectionVideoFrame } from "@/components/site/SectionMedia";
+import labWebgl from "@/assets/lab-webgl.jpg";
+import labCgi from "@/assets/lab-cgi.jpg";
+import labBrand from "@/assets/lab-brand.jpg";
+import labWebsite from "@/assets/lab-website.jpg";
+
 
 export function SectionLabel({ children }: { children: ReactNode }) {
   return (
