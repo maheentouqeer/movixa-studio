@@ -47,8 +47,6 @@ const PILLARS = [
       "Motion interfaces",
       "Product experiences",
     ],
-    cta: "Explore digital",
-    href: "#digital",
   },
   {
     n: "02",
@@ -63,8 +61,6 @@ const PILLARS = [
       "Experimental advertising",
       "AI short films",
     ],
-    cta: "Explore film",
-    href: "#film",
   },
   {
     n: "03",
@@ -79,8 +75,6 @@ const PILLARS = [
       "Logo animation",
       "Marketing assets",
     ],
-    cta: "Explore brand",
-    href: "#brand",
   },
 ];
 
@@ -115,12 +109,6 @@ export function ThreeWays() {
                   {p.title[1]}
                 </h3>
                 <p className="mt-6 max-w-md text-muted-foreground">{p.copy}</p>
-                <a
-                  href={p.href}
-                  className="mt-8 inline-flex items-center gap-2 text-sm uppercase tracking-[0.2em] text-foreground/80 transition hover:text-foreground"
-                >
-                  {p.cta} <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
-                </a>
               </div>
               <ul className="grid content-start gap-y-3 self-center sm:grid-cols-2">
                 {p.items.map((item) => (
