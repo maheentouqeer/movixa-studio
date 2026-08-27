@@ -143,21 +143,13 @@ function Home() {
       <PillarSequence />
       <ThreeWays />
       <Showreel />
-      <Portfolio />
-      <HorizontalShowcase />
+      <FilmReel />
       <AIFilmSection />
-      <ScrollSequence
-        label="Frame Sequence System"
-        title="Scroll becomes direction."
-        description="A reusable high-DPI canvas sequence is ready for Movixa video frames, with batched preloading, scrubbed playback, reduced-motion fallback and responsive contain rendering."
-      />
+      <FrameSequenceSection />
       <BrandVisualsSection />
       <DigitalExperiences />
       <IdeaToFrame />
-
-      <BehindProcess />
       <Capabilities />
-      <TechStack />
       <MovixaLab />
       <Industries />
       <TrustSection />
@@ -169,6 +161,7 @@ function Home() {
     </>
   );
 }
+
 
 function LoadingCurtain() {
   const [gone, setGone] = useState(false);
@@ -301,36 +294,43 @@ function Hero() {
         </div>
 
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.4, delay: 1.8 }}
-          className="relative h-[400px] md:h-[560px]"
+          transition={{ duration: 0.8, delay: 0.35 }}
+          className="relative h-[320px] md:h-[520px]"
         >
-          <div className="absolute inset-0 rounded-3xl overflow-hidden">
-            <Suspense
-              fallback={
-                <div className="h-full w-full bg-gradient-to-br from-[oklch(0.72_0.19_45)]/30 to-[oklch(0.68_0.22_25)]/30 rounded-3xl" />
-              }
-            >
-              <Hero3D />
-            </Suspense>
+          <div className="relative h-full w-full overflow-hidden rounded-3xl border border-white/10 bg-black">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_38%,oklch(0.78_0.17_55_/_0.35),transparent_58%),linear-gradient(150deg,oklch(0.18_0.012_260),black)]" />
+            <div className="absolute inset-0 grid-bg opacity-25" />
+            <motion.div
+              aria-hidden
+              animate={{ y: [0, -18, 0], rotate: [0, 6, 0] }}
+              transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute left-1/2 top-1/2 h-44 w-44 -translate-x-1/2 -translate-y-1/2 rounded-[2rem] border border-white/15 bg-gradient-to-br from-white/15 to-transparent backdrop-blur-xl shadow-[0_40px_120px_-40px_oklch(0.78_0.17_55_/_0.8)] md:h-56 md:w-56"
+            />
+            <div className="pointer-events-none absolute inset-x-10 top-1/2 h-px -translate-y-1/2 bg-gradient-to-r from-transparent via-[oklch(0.86_0.12_70)]/60 to-transparent" />
+            <div className="absolute bottom-6 left-6 text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
+              Movixa Studio
+            </div>
           </div>
         </motion.div>
+
       </motion.div>
     </section>
   );
 }
 
 const MARQUEE = [
-  "Cinematic",
-  "AI Commercials",
+  "Websites",
+  "Social Media Branding",
+  "AI Ads",
   "CGI",
   "Product Ads",
   "Architectural",
   "Logo Motion",
-  "Miniatures",
-  "AI Films",
+  "Brand Visuals",
 ];
+
 
 function Marquee() {
   return (
