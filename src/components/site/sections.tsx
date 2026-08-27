@@ -269,17 +269,19 @@ export function IdeaToFrame() {
 /* ============================ DIGITAL EXPERIENCES ============================ */
 
 export function DigitalExperiences() {
+  const { label, title, description, videoUrl } = useSectionMedia("digital_experiences", {
+    label: "Digital Experiences",
+    title: "We don't just design websites.",
+    description: "We build digital experiences.",
+  });
+
   return (
     <section id="digital" className="relative py-32">
       <div className="mx-auto grid max-w-7xl items-center gap-16 px-6 md:grid-cols-2">
         <div>
-          <SectionLabel>Digital Experiences</SectionLabel>
-          <h2 className="mt-6 text-display text-4xl leading-[0.95] md:text-6xl">
-            We don't just
-            <br />
-            design websites.
-          </h2>
-          <p className="mt-6 text-lg text-muted-foreground">We build digital experiences.</p>
+          <SectionLabel>{label}</SectionLabel>
+          <h2 className="mt-6 text-display text-4xl leading-[0.95] md:text-6xl">{title}</h2>
+          {description && <p className="mt-6 text-lg text-muted-foreground">{description}</p>}
           <ul className="mt-8 flex flex-wrap gap-2">
             {["Creative direction", "UI/UX", "3D / WebGL", "Motion", "Development"].map((t) => (
               <li key={t} className="rounded-full glass px-4 py-1.5 text-xs">
@@ -294,11 +296,13 @@ export function DigitalExperiences() {
           </div>
         </div>
 
-        <BrowserMock />
+        {videoUrl ? <SectionVideoFrame src={videoUrl} /> : <BrowserMock />}
       </div>
     </section>
   );
 }
+
+
 
 function BrowserMock() {
   return (
