@@ -166,7 +166,7 @@ function Home() {
 function LoadingCurtain() {
   const [gone, setGone] = useState(false);
   useEffect(() => {
-    const t = setTimeout(() => setGone(true), 1400);
+    const t = setTimeout(() => setGone(true), 700);
     return () => clearTimeout(t);
   }, []);
   return (
@@ -224,7 +224,7 @@ function Hero() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1.4 }}
+            transition={{ duration: 0.8, delay: 0.15 }}
             className="inline-flex items-center gap-2 rounded-full glass px-4 py-1.5 text-xs text-muted-foreground"
           >
             <span className="relative flex h-1.5 w-1.5">
@@ -237,7 +237,7 @@ function Hero() {
           <motion.h1
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 1.6, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 1, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
             className="mt-6 text-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl"
           >
             WE CREATE
@@ -250,7 +250,7 @@ function Hero() {
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 2 }}
+            transition={{ duration: 1, delay: 0.4 }}
             className="mt-8 max-w-lg text-lg text-muted-foreground leading-relaxed"
           >
             AI commercials, CGI product ads, architectural transformations, logo animations, and
@@ -260,7 +260,7 @@ function Hero() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 2.2 }}
+            transition={{ duration: 1, delay: 0.5 }}
             className="mt-10 flex flex-wrap gap-3"
           >
             <MagneticButton href="/contact">
@@ -274,7 +274,7 @@ function Hero() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 2.6 }}
+            transition={{ duration: 1, delay: 0.6 }}
             className="mt-14 flex items-center gap-8 text-xs text-muted-foreground"
           >
             {HERO_STATS.map((stat, index) => (
