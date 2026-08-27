@@ -8,15 +8,13 @@ import {
   useScroll,
   useTransform,
 } from "framer-motion";
-import { Suspense, lazy, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
   Play,
   Sparkles,
   Film,
   Building2,
-  Package,
-  PenTool,
   Cpu,
   Store,
   Car,
@@ -28,22 +26,18 @@ import {
   Home as HomeIcon,
   Check,
 } from "lucide-react";
-import { Link } from "@tanstack/react-router";
 import { MagneticButton } from "@/components/site/MagneticButton";
 import { Particles } from "@/components/site/Particles";
-import { TiltCard } from "@/components/site/TiltCard";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { BehindProcess } from "@/components/site/BehindProcess";
-import { TechStack } from "@/components/site/TechStack";
 import { TrustSection } from "@/components/site/TrustSection";
 import { Showreel } from "@/components/site/Showreel";
 import { PillarSequence } from "@/components/site/PillarSequence";
-import { ScrollSequence } from "@/components/site/ScrollSequence";
+import { useSectionMedia, SectionVideoFrame } from "@/components/site/SectionMedia";
 import {
   ThreeWays,
   Capabilities,
@@ -55,9 +49,7 @@ import {
   WhyMovixa,
   FollowTheWork,
 } from "@/components/site/sections";
-import { supabase } from "@/integrations/supabase/client";
 
-const Hero3D = lazy(() => import("@/components/site/Hero3D").then((m) => ({ default: m.Hero3D })));
 
 const HERO_STATS = [
   { value: 3, suffix: "", label: "Creative disciplines" },
