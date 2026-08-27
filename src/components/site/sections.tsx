@@ -52,7 +52,7 @@ const PILLARS = [
   },
   {
     n: "02",
-    title: ["AI FILM", "+ CGI"],
+    title: ["AI ADS", "+ CGI"],
     copy: "Cinematic advertising built from AI, CGI, VFX and visual storytelling.",
     items: [
       "AI commercials",
@@ -351,7 +351,7 @@ function BrowserMock() {
   );
 }
 
-/* ============================ AI FILM ============================ */
+/* ============================ AI ADS ============================ */
 
 const FILM_STAGES = [
   { label: "SKETCH", desc: "Concept and framing" },
@@ -367,7 +367,7 @@ export function AIFilmSection() {
     <section id="film" ref={ref} className="relative h-[260vh]">
       <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden">
         <div className="mx-auto w-full max-w-7xl px-6">
-          <SectionLabel>AI Film + CGI</SectionLabel>
+          <SectionLabel>AI Ads + CGI</SectionLabel>
           <h2 className="mt-6 text-display text-4xl leading-[0.95] md:text-6xl">
             From a prompt
             <br />
@@ -490,7 +490,7 @@ export function BrandVisualsSection() {
 const LAB = [
   { title: "Interactive screen break", tag: "WebGL" },
   { title: "Giant CGI product", tag: "CGI" },
-  { title: "Robotic product advertisement", tag: "AI Film" },
+  { title: "Robotic product advertisement", tag: "AI Ads" },
   { title: "Miniature worlds", tag: "CGI" },
   { title: "Product transformations", tag: "VFX" },
   { title: "AI fashion", tag: "Generative" },
@@ -590,7 +590,7 @@ const COLUMNS = [
   },
   {
     title: "FILM",
-    sub: "AI Film + CGI",
+    sub: "AI Ads + CGI",
     items: ["AI commercials", "CGI product ads", "Cinematic experiments", "VFX"],
   },
   {
