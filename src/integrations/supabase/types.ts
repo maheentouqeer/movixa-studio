@@ -74,6 +74,8 @@ export type Database = {
       site_sections: {
         Row: {
           description: string | null
+          image_paths: string[]
+          image_urls: string[]
           label: string
           slot: string
           storage_path: string | null
@@ -83,6 +85,8 @@ export type Database = {
         }
         Insert: {
           description?: string | null
+          image_paths?: string[]
+          image_urls?: string[]
           label?: string
           slot: string
           storage_path?: string | null
@@ -92,12 +96,32 @@ export type Database = {
         }
         Update: {
           description?: string | null
+          image_paths?: string[]
+          image_urls?: string[]
           label?: string
           slot?: string
           storage_path?: string | null
           title?: string
           updated_at?: string
           video_url?: string | null
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value?: string
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: string
         }
         Relationships: []
       }
