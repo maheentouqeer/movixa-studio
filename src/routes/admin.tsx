@@ -719,3 +719,154 @@ function CenterSpinner() {
     </div>
   );
 }
+
+interface SiteSection {
+  slot: string;
+  label: string;
+  title: string;
+  description: string | null;
+  storage_path: string | null;
+  video_url: string | null;
+}
+
+const SLOT_NAMES: Record<string, string> = {
+  film_reel: "Film Reel",
+  frame_sequence: "Frame Sequence",
+  brand_visuals: "Brand Visuals",
+  digital_experiences: "Digital Experiences",
+};
+
+function SectionsPanel() {
+  const [rows, setRows] = useState<SiteSection[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const load = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("site_sections")
+      .select("slot,label,title,description,storage_path,video_url")
+      .order("slot");
+    if (error) toast.error(error.message);
+    else setRows((data ?? []) as SiteSection[]);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    void load();
+  }, []);
+
+  if (loading) return <CenterSpinner />;
+
+  return (
+    <div className="grid gap-6 md:grid-cols-2">
+      {rows.map((row) => (
+        <SectionCard key={row.slot} row={row} onSaved={load} />
+      ))}
+      {rows.length === 0 && (
+        <p className="text-sm text-muted-foreground">No editable sections found.</p>
+      )}
+    </div>
+  );
+}
+
+function SectionCard({ row, onSaved }: { row: SiteSection; onSaved: () => void }) {
+  const [label, setLabel] = useState(row.label ?? "");
+  const [title, setTitle] = useState(row.title ?? "");
+  const [description, setDescription] = useState(row.description ?? "");
+  const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const save = async (patch: Partial<SiteSection> = {}) => {
+    setSaving(true);
+    const { error } = await supabase
+      .from("site_sections")
+      .update({ label, title, description: description || null, ...patch })
+      .eq("slot", row.slot);
+    setSaving(false);
+    if (error) return toast.error(error.message);
+    toast.success("Section updated");
+    onSaved();
+  };
+
+  const upload = async (file: File) => {
+    setUploading(true);
+    const path = makeStoragePath("videos", file);
+    const { error } = await supabase.storage.from(VIDEO_BUCKET).upload(path, file, {
+      cacheControl: "3600",
+      upsert: false,
+    });
+    setUploading(false);
+    if (error) return toast.error(error.message);
+    await save({ storage_path: path, video_url: publicStorageUrl(path) });
+  };
+
+  return (
+    <div className="glass rounded-2xl p-6 space-y-4">
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="text-display text-2xl">{SLOT_NAMES[row.slot] ?? row.slot}</h3>
+        <Badge variant="outline" className="text-[10px] uppercase tracking-widest">
+          {row.storage_path ? "Video set" : "No video"}
+        </Badge>
+      </div>
+
+      <div className="space-y-3">
+        <div>
+          <label className="text-xs uppercase tracking-widest text-muted-foreground">Label</label>
+          <Input value={label} onChange={(e) => setLabel(e.target.value)} className="mt-1" />
+        </div>
+        <div>
+          <label className="text-xs uppercase tracking-widest text-muted-foreground">Title</label>
+          <Input value={title} onChange={(e) => setTitle(e.target.value)} className="mt-1" />
+        </div>
+        <div>
+          <label className="text-xs uppercase tracking-widest text-muted-foreground">
+            Description
+          </label>
+          <Textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={3}
+            className="mt-1"
+          />
+        </div>
+      </div>
+
+      <input
+        ref={fileRef}
+        type="file"
+        accept="video/*"
+        className="hidden"
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) void upload(f);
+          e.target.value = "";
+        }}
+      />
+
+      <div className="flex flex-wrap gap-3">
+        <Button onClick={() => void save()} disabled={saving}>
+          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save text"}
+        </Button>
+        <Button variant="outline" onClick={() => fileRef.current?.click()} disabled={uploading}>
+          {uploading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <>
+              <Upload className="h-4 w-4 mr-1.5" /> {row.storage_path ? "Replace video" : "Upload video"}
+            </>
+          )}
+        </Button>
+        {row.storage_path && (
+          <Button
+            variant="ghost"
+            onClick={() => void save({ storage_path: null, video_url: null })}
+            disabled={saving}
+          >
+            <Trash2 className="h-4 w-4 mr-1.5" /> Remove video
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
