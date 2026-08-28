@@ -198,12 +198,18 @@ VALUES ('${userId ?? "YOUR_USER_ID"}', 'admin');`}</pre>
             <TabsTrigger value="videos">
               <Film className="h-4 w-4 mr-1.5" /> Videos
             </TabsTrigger>
+            <TabsTrigger value="sections">
+              <ImagePlus className="h-4 w-4 mr-1.5" /> Sections
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="inquiries" className="mt-6">
             <InquiriesPanel />
           </TabsContent>
           <TabsContent value="videos" className="mt-6">
             <VideosPanel />
+          </TabsContent>
+          <TabsContent value="sections" className="mt-6">
+            <SectionsPanel />
           </TabsContent>
         </Tabs>
       </div>
