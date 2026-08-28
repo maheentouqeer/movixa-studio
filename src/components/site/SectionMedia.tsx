@@ -9,41 +9,56 @@ export interface SectionMedia {
   description: string | null;
   storage_path: string | null;
   video_url: string | null;
+  image_paths: string[] | null;
+  image_urls: string[] | null;
 }
 
 const VIDEO_BUCKET = "videos";
 
+async function signPath(path: string) {
+  const { data } = await supabase.storage.from(VIDEO_BUCKET).createSignedUrl(path, 60 * 60);
+  if (data?.signedUrl) return data.signedUrl;
+  const { data: pub } = supabase.storage.from(VIDEO_BUCKET).getPublicUrl(path);
+  return pub.publicUrl || null;
+}
+
 export async function resolveSectionVideo(media: SectionMedia | null) {
   if (!media) return null;
   if (media.storage_path) {
-    const { data } = await supabase.storage
-      .from(VIDEO_BUCKET)
-      .createSignedUrl(media.storage_path, 60 * 60);
-    if (data?.signedUrl) return data.signedUrl;
-    const { data: pub } = supabase.storage.from(VIDEO_BUCKET).getPublicUrl(media.storage_path);
-    if (pub.publicUrl) return pub.publicUrl;
+    const url = await signPath(media.storage_path);
+    if (url) return url;
   }
   return media.video_url;
 }
 
-/** Reads the admin-editable copy + video for a homepage section slot. */
+/** Reads the admin-editable copy, video and images for a homepage section slot. */
 export function useSectionMedia(slot: string, fallback: Partial<SectionMedia> = {}) {
   const [media, setMedia] = useState<SectionMedia | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       const { data } = await supabase
         .from("site_sections")
-        .select("slot,label,title,description,storage_path,video_url")
+        .select("slot,label,title,description,storage_path,video_url,image_paths,image_urls")
         .eq("slot", slot)
         .maybeSingle();
       if (cancelled || !data) return;
-      const row = data as SectionMedia;
+      const row = data as unknown as SectionMedia;
       setMedia(row);
+
       const url = await resolveSectionVideo(row);
       if (!cancelled) setVideoUrl(url);
+
+      const paths = row.image_paths ?? [];
+      if (paths.length) {
+        const signed = await Promise.all(paths.map((p) => signPath(p)));
+        if (!cancelled) setImageUrls(signed.filter((u): u is string => Boolean(u)));
+      } else if (!cancelled) {
+        setImageUrls(row.image_urls ?? []);
+      }
     })();
     return () => {
       cancelled = true;
@@ -55,10 +70,14 @@ export function useSectionMedia(slot: string, fallback: Partial<SectionMedia> = 
     title: media?.title || fallback.title || "",
     description: media?.description ?? fallback.description ?? null,
     videoUrl,
+    imageUrls,
   };
 }
 
-/** Lightweight video frame with a gradient placeholder when nothing is uploaded yet. */
+/**
+ * Video frame that adapts to the uploaded file's orientation
+ * (vertical, square or horizontal) instead of forcing 16:9.
+ */
 export function SectionVideoFrame({
   src,
   className = "",
@@ -69,6 +88,13 @@ export function SectionVideoFrame({
   aspect?: string;
 }) {
   const ref = useRef<HTMLVideoElement>(null);
+  const [ratio, setRatio] = useState<number | null>(null);
+
+  useEffect(() => {
+    setRatio(null);
+  }, [src]);
+
+  const isVertical = ratio !== null && ratio < 0.95;
 
   return (
     <motion.div
@@ -76,7 +102,10 @@ export function SectionVideoFrame({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "0px 0px -10% 0px" }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className={`relative ${aspect} overflow-hidden rounded-2xl border border-white/10 bg-black ${className}`}
+      className={`relative overflow-hidden rounded-2xl border border-white/10 bg-black ${
+        ratio === null ? aspect : ""
+      } ${isVertical ? "mx-auto w-full max-w-[420px]" : ""} ${className}`}
+      style={ratio !== null ? { aspectRatio: ratio } : undefined}
     >
       {src ? (
         <video
@@ -88,7 +117,11 @@ export function SectionVideoFrame({
           autoPlay
           controls
           preload="metadata"
-          className="absolute inset-0 h-full w-full object-cover"
+          onLoadedMetadata={(e) => {
+            const v = e.currentTarget;
+            if (v.videoWidth && v.videoHeight) setRatio(v.videoWidth / v.videoHeight);
+          }}
+          className={`absolute inset-0 h-full w-full ${isVertical ? "object-contain" : "object-cover"}`}
         />
       ) : (
         <>
@@ -100,5 +133,40 @@ export function SectionVideoFrame({
         </>
       )}
     </motion.div>
+  );
+}
+
+/** Masonry-ish gallery for admin uploaded section images. */
+export function SectionImageGrid({
+  images,
+  fallback,
+}: {
+  images: string[];
+  fallback?: React.ReactNode;
+}) {
+  if (!images.length) return <>{fallback ?? null}</>;
+
+  return (
+    <div className="grid grid-cols-2 gap-3">
+      {images.map((src, i) => (
+        <motion.div
+          key={src}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.5, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }}
+          className={`group relative overflow-hidden rounded-xl border border-white/10 bg-black ${
+            i % 5 === 0 ? "col-span-2 aspect-[16/9]" : "aspect-[4/5]"
+          }`}
+        >
+          <img
+            src={src}
+            alt={`Brand visual ${i + 1}`}
+            loading="lazy"
+            className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+          />
+        </motion.div>
+      ))}
+    </div>
   );
 }
