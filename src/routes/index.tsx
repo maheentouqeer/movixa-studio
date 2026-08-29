@@ -43,7 +43,6 @@ import {
   Capabilities,
   IdeaToFrame,
   DigitalExperiences,
-  AIFilmSection,
   BrandVisualsSection,
   MovixaLab,
   WhyMovixa,
@@ -143,8 +142,6 @@ function Home() {
       <PillarSequence />
       <ThreeWays />
       <Showreel />
-      <FilmReel />
-      <AIFilmSection />
       <FrameSequenceSection />
       <BrandVisualsSection />
       <DigitalExperiences />
@@ -299,24 +296,83 @@ function Hero() {
           transition={{ duration: 0.8, delay: 0.35 }}
           className="relative h-[320px] md:h-[520px]"
         >
-          <div className="relative h-full w-full overflow-hidden rounded-3xl border border-white/10 bg-black">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_38%,oklch(0.78_0.17_55_/_0.35),transparent_58%),linear-gradient(150deg,oklch(0.18_0.012_260),black)]" />
-            <div className="absolute inset-0 grid-bg opacity-25" />
-            <motion.div
-              aria-hidden
-              animate={{ y: [0, -18, 0], rotate: [0, 6, 0] }}
-              transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute left-1/2 top-1/2 h-44 w-44 -translate-x-1/2 -translate-y-1/2 rounded-[2rem] border border-white/15 bg-gradient-to-br from-white/15 to-transparent backdrop-blur-xl shadow-[0_40px_120px_-40px_oklch(0.78_0.17_55_/_0.8)] md:h-56 md:w-56"
-            />
-            <div className="pointer-events-none absolute inset-x-10 top-1/2 h-px -translate-y-1/2 bg-gradient-to-r from-transparent via-[oklch(0.86_0.12_70)]/60 to-transparent" />
-            <div className="absolute bottom-6 left-6 text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
-              Movixa Studio
-            </div>
-          </div>
+          <HeroStudioConsole />
         </motion.div>
 
       </motion.div>
     </section>
+  );
+}
+
+function HeroStudioConsole() {
+  const [active, setActive] = useState(1);
+  const layers = [
+    { title: "Brand", sub: "identity", x: "12%", y: "18%" },
+    { title: "AI Ad", sub: "frame 024", x: "36%", y: "31%" },
+    { title: "Web", sub: "live build", x: "58%", y: "15%" },
+  ];
+
+  return (
+    <div className="group relative h-full w-full overflow-hidden rounded-3xl border border-white/10 bg-black shadow-[0_40px_140px_-60px_oklch(0.78_0.17_55_/_0.75)]">
+      <motion.div
+        aria-hidden
+        animate={{
+          background: [
+            "radial-gradient(circle at 35% 30%, oklch(0.78 0.17 55 / 0.34), transparent 50%), radial-gradient(circle at 70% 70%, oklch(0.62 0.12 245 / 0.28), transparent 55%), linear-gradient(150deg, oklch(0.18 0.012 260), black)",
+            "radial-gradient(circle at 65% 28%, oklch(0.72 0.19 45 / 0.32), transparent 50%), radial-gradient(circle at 35% 70%, oklch(0.68 0.22 25 / 0.24), transparent 55%), linear-gradient(150deg, oklch(0.18 0.012 260), black)",
+          ],
+        }}
+        transition={{ duration: 8, repeat: Infinity, repeatType: "mirror", ease: "easeInOut" }}
+        className="absolute inset-0"
+      />
+      <div className="absolute inset-0 grid-bg opacity-25" />
+      <motion.div
+        aria-hidden
+        animate={{ rotate: [0, 360] }}
+        transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
+        className="absolute left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-white/15 md:h-96 md:w-96"
+      />
+
+      {layers.map((layer, index) => (
+        <motion.button
+          key={layer.title}
+          type="button"
+          onMouseEnter={() => setActive(index)}
+          onFocus={() => setActive(index)}
+          whileHover={{ y: -8, scale: 1.03 }}
+          whileTap={{ scale: 0.98 }}
+          animate={{
+            y: active === index ? -10 : [0, -8, 0],
+            opacity: active === index ? 1 : 0.72,
+          }}
+          transition={{ duration: active === index ? 0.3 : 5 + index, repeat: active === index ? 0 : Infinity }}
+          className={`absolute flex aspect-[4/5] w-[34%] max-w-[180px] flex-col justify-between overflow-hidden rounded-2xl border p-4 text-left backdrop-blur-xl transition-colors ${
+            active === index
+              ? "border-[oklch(0.86_0.12_70)] bg-white/[0.12]"
+              : "border-white/10 bg-white/[0.05]"
+          }`}
+          style={{ left: layer.x, top: layer.y }}
+        >
+          <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-[oklch(0.86_0.12_70)]">
+            {layer.sub}
+          </span>
+          <span className="text-display text-2xl leading-none md:text-4xl">{layer.title}</span>
+          <span className="absolute inset-x-4 bottom-16 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+        </motion.button>
+      ))}
+
+      <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between gap-4">
+        <div>
+          <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
+            Movixa Studio
+          </div>
+          <div className="mt-2 text-display text-2xl leading-none">Live creative engine</div>
+        </div>
+        <div className="hidden rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-xs text-muted-foreground sm:block">
+          Hover a layer
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -351,36 +407,11 @@ function Marquee() {
   );
 }
 
-function FilmReel() {
-  const { label, title, description, videoUrl } = useSectionMedia("film_reel", {
-    label: "Film Reel",
-    title: "Built to be watched.",
-    description:
-      "A cinematic reel of our latest AI ads, CGI product films and brand motion work.",
-  });
-
-  return (
-    <section id="work" className="relative border-y border-border py-28">
-      <div className="mx-auto max-w-6xl px-6">
-        <SectionLabel>{label}</SectionLabel>
-        <SectionHeading>{title}</SectionHeading>
-        {description && (
-          <p className="mt-6 max-w-xl text-muted-foreground">{description}</p>
-        )}
-        <div className="mt-12">
-          <SectionVideoFrame src={videoUrl} />
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function FrameSequenceSection() {
   const { label, title, description, videoUrl } = useSectionMedia("frame_sequence", {
     label: "Frame Sequence",
     title: "Scroll becomes direction.",
-    description:
-      "Every frame is directed — camera language, light and rhythm decided before a single render.",
+    description: "Cinematic sequences engineered frame by frame.",
   });
 
   return (
@@ -391,7 +422,11 @@ function FrameSequenceSection() {
           <h2 className="mt-6 text-display text-4xl leading-[0.95] md:text-6xl">{title}</h2>
           {description && <p className="mt-6 text-muted-foreground">{description}</p>}
         </div>
-        <SectionVideoFrame src={videoUrl} />
+        <SectionVideoFrame
+          src={videoUrl}
+          fallbackTitle="AI Ads + CGI"
+          fallbackDescription="Upload any vertical, horizontal or square video from admin."
+        />
       </div>
     </section>
   );

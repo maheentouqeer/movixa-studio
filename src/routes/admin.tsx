@@ -16,8 +16,23 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { ImagePlus, Loader2, LogOut, Search, Shield, Upload, Trash2, Film } from "lucide-react";
+import {
+  Facebook,
+  Film,
+  ImagePlus,
+  Instagram,
+  Link2,
+  Loader2,
+  LogOut,
+  Search,
+  Shield,
+  Trash2,
+  Upload,
+  Youtube,
+} from "lucide-react";
 import { motion } from "framer-motion";
+import { sectionMediaPublicUrl } from "@/components/site/SectionMedia";
+import { SOCIAL_KEYS, type SocialKey } from "@/hooks/useSiteLinks";
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
@@ -109,11 +124,9 @@ async function resolveStorageUrl(path: string | null | undefined, fallback?: str
   return publicUrl.publicUrl || fallback || null;
 }
 
-function publicStorageUrl(path: string) {
-  return supabase.storage.from(VIDEO_BUCKET).getPublicUrl(path).data.publicUrl;
-}
+const publicStorageUrl = sectionMediaPublicUrl;
 
-function makeStoragePath(folder: "videos" | "thumbnails", file: File) {
+function makeStoragePath(folder: "videos" | "thumbnails" | "images", file: File) {
   const ext = file.name.split(".").pop()?.toLowerCase() || (folder === "videos" ? "mp4" : "jpg");
   return `${folder}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
 }
@@ -201,6 +214,9 @@ VALUES ('${userId ?? "YOUR_USER_ID"}', 'admin');`}</pre>
             <TabsTrigger value="sections">
               <ImagePlus className="h-4 w-4 mr-1.5" /> Sections
             </TabsTrigger>
+            <TabsTrigger value="links">
+              <Link2 className="h-4 w-4 mr-1.5" /> Links
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="inquiries" className="mt-6">
             <InquiriesPanel />
@@ -210,6 +226,9 @@ VALUES ('${userId ?? "YOUR_USER_ID"}', 'admin');`}</pre>
           </TabsContent>
           <TabsContent value="sections" className="mt-6">
             <SectionsPanel />
+          </TabsContent>
+          <TabsContent value="links" className="mt-6">
+            <LinksPanel />
           </TabsContent>
         </Tabs>
       </div>
@@ -733,10 +752,11 @@ interface SiteSection {
   description: string | null;
   storage_path: string | null;
   video_url: string | null;
+  image_paths: string[] | null;
+  image_urls: string[] | null;
 }
 
 const SLOT_NAMES: Record<string, string> = {
-  film_reel: "Film Reel",
   frame_sequence: "Frame Sequence",
   brand_visuals: "Brand Visuals",
   digital_experiences: "Digital Experiences",
@@ -750,10 +770,10 @@ function SectionsPanel() {
     setLoading(true);
     const { data, error } = await supabase
       .from("site_sections")
-      .select("slot,label,title,description,storage_path,video_url")
+      .select("slot,label,title,description,storage_path,video_url,image_paths,image_urls")
       .order("slot");
     if (error) toast.error(error.message);
-    else setRows((data ?? []) as SiteSection[]);
+    else setRows(((data ?? []) as SiteSection[]).filter((row) => row.slot !== "film_reel"));
     setLoading(false);
   };
 
@@ -779,9 +799,20 @@ function SectionCard({ row, onSaved }: { row: SiteSection; onSaved: () => void }
   const [label, setLabel] = useState(row.label ?? "");
   const [title, setTitle] = useState(row.title ?? "");
   const [description, setDescription] = useState(row.description ?? "");
+  const [imagePaths, setImagePaths] = useState<string[]>(row.image_paths ?? []);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const imageRef = useRef<HTMLInputElement>(null);
+  const isBrandSection = row.slot === "brand_visuals";
+  const acceptsVideo = row.slot === "frame_sequence" || row.slot === "digital_experiences";
+
+  useEffect(() => {
+    setLabel(row.label ?? "");
+    setTitle(row.title ?? "");
+    setDescription(row.description ?? "");
+    setImagePaths(row.image_paths ?? []);
+  }, [row]);
 
   const save = async (patch: Partial<SiteSection> = {}) => {
     setSaving(true);
@@ -807,12 +838,57 @@ function SectionCard({ row, onSaved }: { row: SiteSection; onSaved: () => void }
     await save({ storage_path: path, video_url: publicStorageUrl(path) });
   };
 
+  const uploadImages = async (files: FileList) => {
+    const selected = Array.from(files).filter((file) => file.type.startsWith("image/"));
+    if (!selected.length) return toast.error("Choose image files first");
+
+    setUploading(true);
+    const nextPaths = [...imagePaths];
+    const nextUrls = [...(row.image_urls ?? [])];
+    try {
+      for (const file of selected) {
+        const path = makeStoragePath("images", file);
+        const { error } = await supabase.storage.from(VIDEO_BUCKET).upload(path, file, {
+          contentType: file.type,
+          cacheControl: "31536000",
+          upsert: false,
+        });
+        if (error) throw error;
+        nextPaths.push(path);
+        nextUrls.push(publicStorageUrl(path));
+      }
+
+      setImagePaths(nextPaths);
+      await save({ image_paths: nextPaths, image_urls: nextUrls });
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Image upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const removeImage = async (path: string) => {
+    const nextPaths = imagePaths.filter((item) => item !== path);
+    setImagePaths(nextPaths);
+    await save({
+      image_paths: nextPaths,
+      image_urls: nextPaths.map(publicStorageUrl),
+    });
+    await supabase.storage.from(VIDEO_BUCKET).remove([path]);
+  };
+
   return (
     <div className="glass rounded-2xl p-6 space-y-4">
       <div className="flex items-center justify-between gap-3">
         <h3 className="text-display text-2xl">{SLOT_NAMES[row.slot] ?? row.slot}</h3>
         <Badge variant="outline" className="text-[10px] uppercase tracking-widest">
-          {row.storage_path ? "Video set" : "No video"}
+          {isBrandSection
+            ? imagePaths.length
+              ? `${imagePaths.length} image${imagePaths.length === 1 ? "" : "s"}`
+              : "No images"
+            : row.storage_path
+              ? "Video set"
+              : "No video"}
         </Badge>
       </div>
 
@@ -850,20 +926,58 @@ function SectionCard({ row, onSaved }: { row: SiteSection; onSaved: () => void }
         }}
       />
 
+      <input
+        ref={imageRef}
+        type="file"
+        accept="image/*"
+        multiple
+        className="hidden"
+        onChange={(e) => {
+          const files = e.target.files;
+          if (files) void uploadImages(files);
+          e.target.value = "";
+        }}
+      />
+
+      {isBrandSection && imagePaths.length > 0 && (
+        <div className="grid grid-cols-3 gap-2">
+          {imagePaths.map((path) => (
+            <div key={path} className="group relative aspect-square overflow-hidden rounded-lg border border-white/10 bg-black">
+              <img src={publicStorageUrl(path)} alt="" className="h-full w-full object-cover" />
+              <button
+                type="button"
+                onClick={() => void removeImage(path)}
+                className="absolute right-1.5 top-1.5 rounded-full bg-black/70 p-1 opacity-0 transition group-hover:opacity-100"
+                aria-label="Remove image"
+              >
+                <Trash2 className="h-3.5 w-3.5 text-red-200" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
       <div className="flex flex-wrap gap-3">
         <Button onClick={() => void save()} disabled={saving}>
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save text"}
         </Button>
-        <Button variant="outline" onClick={() => fileRef.current?.click()} disabled={uploading}>
-          {uploading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <>
-              <Upload className="h-4 w-4 mr-1.5" /> {row.storage_path ? "Replace video" : "Upload video"}
-            </>
-          )}
-        </Button>
-        {row.storage_path && (
+        {acceptsVideo && (
+          <Button variant="outline" onClick={() => fileRef.current?.click()} disabled={uploading}>
+            {uploading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <>
+                <Upload className="h-4 w-4 mr-1.5" /> {row.storage_path ? "Replace video" : "Upload video"}
+              </>
+            )}
+          </Button>
+        )}
+        {isBrandSection && (
+          <Button variant="outline" onClick={() => imageRef.current?.click()} disabled={uploading}>
+            {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <><ImagePlus className="h-4 w-4 mr-1.5" /> Upload images</>}
+          </Button>
+        )}
+        {acceptsVideo && row.storage_path && (
           <Button
             variant="ghost"
             onClick={() => void save({ storage_path: null, video_url: null })}
@@ -871,8 +985,110 @@ function SectionCard({ row, onSaved }: { row: SiteSection; onSaved: () => void }
           >
             <Trash2 className="h-4 w-4 mr-1.5" /> Remove video
           </Button>
-        )}
+          )}
       </div>
+    </div>
+  );
+}
+
+type SiteLink = {
+  key: SocialKey;
+  label: string;
+  Icon: typeof Instagram;
+  placeholder: string;
+};
+
+const SITE_LINKS: SiteLink[] = [
+  {
+    key: "instagram_url",
+    label: "Instagram",
+    Icon: Instagram,
+    placeholder: "https://instagram.com/movixa",
+  },
+  {
+    key: "youtube_url",
+    label: "YouTube",
+    Icon: Youtube,
+    placeholder: "https://youtube.com/@movixa",
+  },
+  {
+    key: "facebook_url",
+    label: "Facebook",
+    Icon: Facebook,
+    placeholder: "https://facebook.com/movixa",
+  },
+];
+
+function LinksPanel() {
+  const [values, setValues] = useState<Record<SocialKey, string>>({
+    instagram_url: "",
+    youtube_url: "",
+    facebook_url: "",
+  });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("site_settings")
+        .select("key,value")
+        .in("key", SOCIAL_KEYS as unknown as string[]);
+      if (error) toast.error(error.message);
+      else {
+        const next = { ...values };
+        for (const row of (data ?? []) as { key: string; value: string }[]) {
+          if ((SOCIAL_KEYS as readonly string[]).includes(row.key)) {
+            next[row.key as SocialKey] = row.value;
+          }
+        }
+        setValues(next);
+      }
+      setLoading(false);
+    })();
+  }, []);
+
+  const save = async () => {
+    setSaving(true);
+    const { error } = await supabase.from("site_settings").upsert(
+      SOCIAL_KEYS.map((key) => ({
+        key,
+        value: values[key].trim(),
+      })),
+      { onConflict: "key" },
+    );
+    setSaving(false);
+    if (error) toast.error(error.message);
+    else toast.success("Links updated");
+  };
+
+  if (loading) return <CenterSpinner />;
+
+  return (
+    <div className="max-w-2xl glass rounded-2xl p-6">
+      <h2 className="text-display text-2xl">Social links</h2>
+      <p className="mt-1 text-xs text-muted-foreground">
+        These links are used by the homepage social buttons.
+      </p>
+      <div className="mt-6 space-y-4">
+        {SITE_LINKS.map(({ key, label, Icon, placeholder }) => (
+          <div key={key}>
+            <label className="flex items-center gap-2 text-xs uppercase tracking-widest text-muted-foreground">
+              <Icon className="h-4 w-4" /> {label}
+            </label>
+            <Input
+              value={values[key]}
+              onChange={(e) => setValues((current) => ({ ...current, [key]: e.target.value }))}
+              placeholder={placeholder}
+              className="mt-2"
+            />
+          </div>
+        ))}
+      </div>
+      <Button onClick={save} disabled={saving} className="mt-6">
+        {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save links"}
+      </Button>
     </div>
   );
 }

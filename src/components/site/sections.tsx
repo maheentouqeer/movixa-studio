@@ -2,7 +2,8 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useState, type ReactNode } from "react";
 import { ArrowRight, ArrowUpRight, Instagram, Youtube, Facebook } from "lucide-react";
 import { MagneticButton } from "@/components/site/MagneticButton";
-import { useSectionMedia, SectionVideoFrame } from "@/components/site/SectionMedia";
+import { useSectionMedia, SectionImageGrid, SectionVideoFrame } from "@/components/site/SectionMedia";
+import { useSiteLinks } from "@/hooks/useSiteLinks";
 import labWebgl from "@/assets/lab-webgl.jpg";
 import labCgi from "@/assets/lab-cgi.jpg";
 import labBrand from "@/assets/lab-brand.jpg";
@@ -175,13 +176,13 @@ export function Capabilities() {
         }}
       />
       <div className="relative mx-auto max-w-7xl px-6">
-        <SectionLabel>What we make</SectionLabel>
+        <SectionLabel>Services</SectionLabel>
         <SectionHeading>
-          What we make
+          Websites, AI video,
           <br />
-          when ordinary
+          and brand systems
           <br />
-          isn't enough.
+          built to move.
         </SectionHeading>
 
         <ul className="mt-16 border-t border-border">
@@ -217,13 +218,12 @@ export function Capabilities() {
 /* ============================ IDEA TO FRAME ============================ */
 
 const STAGES = [
-  { n: "01", title: "DISCOVER", desc: "Brief, objective, audience and constraints." },
-  { n: "02", title: "CONCEPT", desc: "Moodboard and visual territory locked." },
-  { n: "03", title: "DIRECT", desc: "Storyboard, shot list, camera language." },
-  { n: "04", title: "GENERATE", desc: "AI and CGI frames built from the direction." },
-  { n: "05", title: "COMPOSE", desc: "Edit, rhythm, sound and pacing." },
-  { n: "06", title: "POLISH", desc: "Color, VFX and finishing detail." },
-  { n: "07", title: "DELIVER", desc: "Masters, cutdowns and platform exports." },
+  { n: "01", title: "DISCOVER", desc: "We define the offer, audience, platform and business goal." },
+  { n: "02", title: "DIRECT", desc: "Creative direction sets the visual language for website, video or brand." },
+  { n: "03", title: "DESIGN", desc: "Interfaces, brand systems, storyboards and campaign frames take shape." },
+  { n: "04", title: "BUILD", desc: "We produce the website, AI/CGI sequence, visuals and motion assets." },
+  { n: "05", title: "REFINE", desc: "Every screen, frame and graphic is polished against the approved direction." },
+  { n: "06", title: "LAUNCH", desc: "Final exports, site handoff and platform-ready assets are delivered." },
 ];
 
 export function IdeaToFrame() {
@@ -238,7 +238,7 @@ export function IdeaToFrame() {
         <SectionHeading>
           From idea
           <br />
-          to frame.
+          to launch.
         </SectionHeading>
 
         <div ref={ref} className="relative mt-20 pl-10 md:pl-16">
@@ -302,7 +302,15 @@ export function DigitalExperiences() {
           </div>
         </div>
 
-        {videoUrl ? <SectionVideoFrame src={videoUrl} /> : <BrowserMock />}
+        {videoUrl ? (
+          <SectionVideoFrame
+            src={videoUrl}
+            fallbackTitle="Digital experience"
+            fallbackDescription="Upload any vertical, square or horizontal video from admin."
+          />
+        ) : (
+          <BrowserMock />
+        )}
       </div>
     </section>
   );
@@ -349,84 +357,6 @@ function BrowserMock() {
   );
 }
 
-/* ============================ AI ADS ============================ */
-
-const FILM_STAGES = [
-  { label: "SKETCH", desc: "Concept and framing" },
-  { label: "CGI MODEL", desc: "Geometry, light, material" },
-  { label: "FINAL AD", desc: "Graded cinematic frame" },
-];
-
-export function AIFilmSection() {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
-
-  return (
-    <section id="film" ref={ref} className="relative h-[260vh]">
-      <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden">
-        <div className="mx-auto w-full max-w-7xl px-6">
-          <SectionLabel>AI Ads + CGI</SectionLabel>
-          <h2 className="mt-6 text-display text-4xl leading-[0.95] md:text-6xl">
-            From a prompt
-            <br />
-            to a frame.
-          </h2>
-
-          <div className="mt-12 grid gap-4 md:grid-cols-3">
-            {FILM_STAGES.map((s, i) => (
-              <FilmStage key={s.label} stage={s} index={i} progress={scrollYProgress} />
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function FilmStage({
-  stage,
-  index,
-  progress,
-}: {
-  stage: { label: string; desc: string };
-  index: number;
-  progress: ReturnType<typeof useScroll>["scrollYProgress"];
-}) {
-  const start = Math.min(index * 0.28, 0.6);
-  const mid = Math.min(start + 0.14, 0.98);
-  const end = Math.min(start + 0.4, 1);
-  const opacity = useTransform(progress, [start, mid, end], [0.25, 1, 0.45]);
-  const scale = useTransform(progress, [start, mid], [0.96, 1]);
-  const blur = useTransform(progress, [start, mid], [8, 0]);
-  const filter = useTransform(blur, (b) => `blur(${b}px)`);
-
-  return (
-    <motion.div
-      style={{ opacity, scale, filter }}
-      className="relative aspect-video overflow-hidden rounded-2xl border border-white/10 glass"
-    >
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            index === 0
-              ? "repeating-linear-gradient(45deg, oklch(1 0 0 / 4%) 0 2px, transparent 2px 8px)"
-              : index === 1
-                ? "radial-gradient(circle at 40% 40%, oklch(0.62 0.12 245 / 35%), transparent 65%)"
-                : "radial-gradient(circle at 60% 45%, oklch(0.78 0.17 55 / 45%), transparent 65%)",
-        }}
-      />
-      <div className="absolute inset-0 grid-bg opacity-20" />
-      <div className="absolute bottom-5 left-5">
-        <div className="font-mono text-xs tracking-widest text-[oklch(0.86_0.12_70)]">
-          {stage.label}
-        </div>
-        <div className="mt-1 text-sm text-muted-foreground">{stage.desc}</div>
-      </div>
-    </motion.div>
-  );
-}
-
 /* ============================ BRAND VISUALS ============================ */
 
 const BRAND_LAYERS = [
@@ -441,7 +371,7 @@ const BRAND_LAYERS = [
 ];
 
 export function BrandVisualsSection() {
-  const { label, title, description, videoUrl } = useSectionMedia("brand_visuals", {
+  const { label, title, description, imageUrls } = useSectionMedia("brand_visuals", {
     label: "Brand Visuals",
     title: "Your brand, in motion.",
     description:
@@ -451,9 +381,9 @@ export function BrandVisualsSection() {
   return (
     <section id="brand" className="relative border-y border-border py-32">
       <div className="mx-auto grid max-w-7xl items-center gap-16 px-6 md:grid-cols-2">
-        {videoUrl ? (
-          <SectionVideoFrame src={videoUrl} />
-        ) : (
+        <SectionImageGrid
+          images={imageUrls}
+          fallback={
           <div className="grid grid-cols-2 gap-3">
             {BRAND_LAYERS.map((layer, i) => (
               <motion.div
@@ -470,7 +400,8 @@ export function BrandVisualsSection() {
               </motion.div>
             ))}
           </div>
-        )}
+          }
+        />
 
         <div>
           <SectionLabel>{label}</SectionLabel>
@@ -504,11 +435,11 @@ export function MovixaLab() {
   return (
     <section id="lab" className="relative py-32">
       <div className="mx-auto max-w-7xl px-6">
-        <SectionLabel>The Movixa Lab</SectionLabel>
-        <SectionHeading>Experiments become capabilities.</SectionHeading>
+        <SectionLabel>Studio System</SectionLabel>
+        <SectionHeading>One studio for every digital touchpoint.</SectionHeading>
         <p className="mt-6 max-w-xl text-muted-foreground">
-          We experiment with AI, CGI, 3D, VFX, motion, interactive web, generative design and visual
-          storytelling — then bring what works into client work.
+          Movixa connects website design, AI video production and brand visuals into one creative
+          system, so your launch feels consistent from the first click to the final frame.
         </p>
 
         <div className="mt-16 grid auto-rows-[160px] grid-cols-2 gap-3 md:grid-cols-4">
@@ -549,10 +480,10 @@ export function MovixaLab() {
 /* ============================ WHY MOVIXA ============================ */
 
 const WHY = [
-  "Creative direction first.",
-  "AI and CGI without the generic look.",
-  "Built around the story, not the tool.",
-  "Designed for modern brands.",
+  "Strategy before visuals, so every website, ad and asset has a job.",
+  "AI and CGI shaped by art direction, not generic templates.",
+  "Brand systems designed to stay consistent across social, web and motion.",
+  "Production built for vertical, horizontal and campaign-ready formats.",
 ];
 
 export function WhyMovixa() {
@@ -560,7 +491,7 @@ export function WhyMovixa() {
     <section className="relative py-32">
       <div className="mx-auto max-w-7xl px-6">
         <SectionLabel>Why Movixa</SectionLabel>
-        <SectionHeading>How we think.</SectionHeading>
+        <SectionHeading>How we build momentum.</SectionHeading>
         <div className="mt-16 grid gap-px bg-border md:grid-cols-2">
           {WHY.map((w, i) => (
             <motion.div
@@ -610,6 +541,8 @@ const COLUMNS = [
 ];
 
 export function FollowTheWork() {
+  const links = useSiteLinks();
+
   return (
     <section className="relative border-t border-border py-32">
       <div className="mx-auto max-w-7xl px-6">
@@ -640,17 +573,28 @@ export function FollowTheWork() {
         </div>
 
         <div className="mt-10 flex flex-wrap gap-3">
-          {SOCIALS.map(({ label, href, Icon }) => (
-            <a
-              key={label}
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full glass px-5 py-2.5 text-sm transition hover:bg-white/10"
-            >
-              <Icon className="h-4 w-4" aria-hidden /> {label}
-            </a>
-          ))}
+          {SOCIALS.map(({ label, href, Icon }) => {
+            const resolvedHref =
+              label === "Instagram"
+                ? links.instagram_url
+                : label === "YouTube"
+                  ? links.youtube_url
+                  : label === "Facebook"
+                    ? links.facebook_url
+                    : href;
+
+            return (
+              <a
+                key={label}
+                href={resolvedHref || href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-full glass px-5 py-2.5 text-sm transition hover:bg-white/10"
+              >
+                <Icon className="h-4 w-4" aria-hidden /> {label}
+              </a>
+            );
+          })}
         </div>
       </div>
     </section>

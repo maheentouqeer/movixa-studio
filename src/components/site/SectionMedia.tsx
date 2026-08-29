@@ -22,6 +22,10 @@ async function signPath(path: string) {
   return pub.publicUrl || null;
 }
 
+export function sectionMediaPublicUrl(path: string) {
+  return supabase.storage.from(VIDEO_BUCKET).getPublicUrl(path).data.publicUrl;
+}
+
 export async function resolveSectionVideo(media: SectionMedia | null) {
   if (!media) return null;
   if (media.storage_path) {
@@ -82,10 +86,14 @@ export function SectionVideoFrame({
   src,
   className = "",
   aspect = "aspect-video",
+  fallbackTitle = "Media canvas",
+  fallbackDescription = "Upload a video in the admin panel to replace this interactive preview.",
 }: {
   src: string | null;
   className?: string;
   aspect?: string;
+  fallbackTitle?: string;
+  fallbackDescription?: string;
 }) {
   const ref = useRef<HTMLVideoElement>(null);
   const [ratio, setRatio] = useState<number | null>(null);
@@ -124,13 +132,46 @@ export function SectionVideoFrame({
           className={`absolute inset-0 h-full w-full ${isVertical ? "object-contain" : "object-cover"}`}
         />
       ) : (
-        <>
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_40%_35%,oklch(0.78_0.17_55_/_0.28),transparent_60%),linear-gradient(135deg,oklch(0.17_0.012_260),black)]" />
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_35%_30%,oklch(0.78_0.17_55_/_0.32),transparent_52%),radial-gradient(circle_at_70%_70%,oklch(0.62_0.12_245_/_0.28),transparent_52%),linear-gradient(135deg,oklch(0.17_0.012_260),black)]" />
           <div className="absolute inset-0 grid-bg opacity-25" />
-          <div className="absolute bottom-5 left-5 text-xs uppercase tracking-[0.24em] text-muted-foreground">
-            Video coming soon
+          {[0, 1, 2].map((index) => (
+            <motion.div
+              key={index}
+              aria-hidden
+              animate={{
+                x: [0, index % 2 ? -22 : 22, 0],
+                y: [0, index % 2 ? 18 : -18, 0],
+                rotate: [0, index % 2 ? -5 : 5, 0],
+              }}
+              transition={{
+                duration: 7 + index,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: index * 0.8,
+              }}
+              className="absolute rounded-2xl border border-white/10 bg-white/[0.06] shadow-[0_30px_90px_-45px_oklch(0.78_0.17_55)]"
+              style={{
+                left: `${18 + index * 20}%`,
+                top: `${18 + index * 13}%`,
+                width: `${30 - index * 4}%`,
+                height: `${36 - index * 5}%`,
+              }}
+            />
+          ))}
+          <motion.div
+            aria-hidden
+            animate={{ scaleX: [0.35, 1, 0.35], opacity: [0.25, 0.8, 0.25] }}
+            transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute left-8 right-8 top-1/2 h-px bg-gradient-to-r from-transparent via-[oklch(0.86_0.12_70)] to-transparent"
+          />
+          <div className="absolute bottom-5 left-5 right-5">
+            <div className="font-mono text-[10px] uppercase tracking-[0.26em] text-[oklch(0.86_0.12_70)]">
+              {fallbackTitle}
+            </div>
+            <p className="mt-2 max-w-sm text-sm text-muted-foreground">{fallbackDescription}</p>
           </div>
-        </>
+        </div>
       )}
     </motion.div>
   );
