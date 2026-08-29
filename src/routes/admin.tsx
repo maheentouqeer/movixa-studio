@@ -18,7 +18,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { toast } from "sonner";
 import {
   Facebook,
-  Film,
   ImagePlus,
   Instagram,
   Link2,
@@ -96,7 +95,6 @@ const titleFromFileName = (name: string) =>
     .trim();
 
 const CATEGORIES = [
-  "Showreel",
   "AI Commercial",
   "CGI Product Ads",
   "Architectural",
@@ -194,7 +192,7 @@ VALUES ('${userId ?? "YOUR_USER_ID"}', 'admin');`}</pre>
           <div>
             <h1 className="text-display text-4xl">Admin</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Manage inquiries and showreel videos
+              Manage inquiries, homepage sections and links
             </p>
           </div>
           <button
@@ -208,9 +206,6 @@ VALUES ('${userId ?? "YOUR_USER_ID"}', 'admin');`}</pre>
         <Tabs defaultValue="inquiries" className="mt-8">
           <TabsList className="glass">
             <TabsTrigger value="inquiries">Inquiries</TabsTrigger>
-            <TabsTrigger value="videos">
-              <Film className="h-4 w-4 mr-1.5" /> Videos
-            </TabsTrigger>
             <TabsTrigger value="sections">
               <ImagePlus className="h-4 w-4 mr-1.5" /> Sections
             </TabsTrigger>
@@ -220,9 +215,6 @@ VALUES ('${userId ?? "YOUR_USER_ID"}', 'admin');`}</pre>
           </TabsList>
           <TabsContent value="inquiries" className="mt-6">
             <InquiriesPanel />
-          </TabsContent>
-          <TabsContent value="videos" className="mt-6">
-            <VideosPanel />
           </TabsContent>
           <TabsContent value="sections" className="mt-6">
             <SectionsPanel />
@@ -547,7 +539,7 @@ function VideosPanel() {
     <div className="grid gap-8 lg:grid-cols-[380px_1fr]">
       <div className="glass rounded-2xl p-6 h-fit">
         <h2 className="text-display text-2xl">Upload video</h2>
-        <p className="mt-1 text-xs text-muted-foreground">Shown on the homepage showreel.</p>
+        <p className="mt-1 text-xs text-muted-foreground">Manage the portfolio video library.</p>
 
         <div className="mt-5 space-y-4">
           <div>
@@ -664,7 +656,7 @@ function VideosPanel() {
           <CenterSpinner />
         ) : videos.length === 0 ? (
           <div className="mt-6 glass rounded-2xl p-12 text-center text-muted-foreground">
-            No videos yet. Upload your first showreel.
+            No videos yet. Upload your first portfolio video.
           </div>
         ) : (
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
@@ -760,6 +752,7 @@ const SLOT_NAMES: Record<string, string> = {
   frame_sequence: "Frame Sequence",
   brand_visuals: "Brand Visuals",
   digital_experiences: "Digital Experiences",
+  studio_system: "Studio System",
 };
 
 function SectionsPanel() {
@@ -773,7 +766,23 @@ function SectionsPanel() {
       .select("slot,label,title,description,storage_path,video_url,image_paths,image_urls")
       .order("slot");
     if (error) toast.error(error.message);
-    else setRows(((data ?? []) as SiteSection[]).filter((row) => row.slot !== "film_reel"));
+    else {
+      const next = ((data ?? []) as SiteSection[]).filter((row) => row.slot !== "film_reel");
+      if (!next.some((row) => row.slot === "studio_system")) {
+        next.push({
+          slot: "studio_system",
+          label: "Studio System",
+          title: "One studio for every digital touchpoint.",
+          description:
+            "Movixa connects website design, AI video production and brand visuals into one creative system, so your launch feels consistent from the first click to the final frame.",
+          storage_path: null,
+          video_url: null,
+          image_paths: [],
+          image_urls: [],
+        });
+      }
+      setRows(next);
+    }
     setLoading(false);
   };
 
@@ -804,7 +813,7 @@ function SectionCard({ row, onSaved }: { row: SiteSection; onSaved: () => void }
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const imageRef = useRef<HTMLInputElement>(null);
-  const isBrandSection = row.slot === "brand_visuals";
+  const isImageSection = row.slot === "brand_visuals" || row.slot === "studio_system";
   const acceptsVideo = row.slot === "frame_sequence" || row.slot === "digital_experiences";
 
   useEffect(() => {
@@ -816,10 +825,20 @@ function SectionCard({ row, onSaved }: { row: SiteSection; onSaved: () => void }
 
   const save = async (patch: Partial<SiteSection> = {}) => {
     setSaving(true);
-    const { error } = await supabase
-      .from("site_sections")
-      .update({ label, title, description: description || null, ...patch })
-      .eq("slot", row.slot);
+    const { error } = await supabase.from("site_sections").upsert(
+      {
+        slot: row.slot,
+        label,
+        title,
+        description: description || null,
+        storage_path: row.storage_path,
+        video_url: row.video_url,
+        image_paths: row.image_paths ?? [],
+        image_urls: row.image_urls ?? [],
+        ...patch,
+      },
+      { onConflict: "slot" },
+    );
     setSaving(false);
     if (error) return toast.error(error.message);
     toast.success("Section updated");
@@ -882,7 +901,7 @@ function SectionCard({ row, onSaved }: { row: SiteSection; onSaved: () => void }
       <div className="flex items-center justify-between gap-3">
         <h3 className="text-display text-2xl">{SLOT_NAMES[row.slot] ?? row.slot}</h3>
         <Badge variant="outline" className="text-[10px] uppercase tracking-widest">
-          {isBrandSection
+          {isImageSection
             ? imagePaths.length
               ? `${imagePaths.length} image${imagePaths.length === 1 ? "" : "s"}`
               : "No images"
@@ -939,7 +958,7 @@ function SectionCard({ row, onSaved }: { row: SiteSection; onSaved: () => void }
         }}
       />
 
-      {isBrandSection && imagePaths.length > 0 && (
+      {isImageSection && imagePaths.length > 0 && (
         <div className="grid grid-cols-3 gap-2">
           {imagePaths.map((path) => (
             <div key={path} className="group relative aspect-square overflow-hidden rounded-lg border border-white/10 bg-black">
@@ -972,7 +991,7 @@ function SectionCard({ row, onSaved }: { row: SiteSection; onSaved: () => void }
             )}
           </Button>
         )}
-        {isBrandSection && (
+        {isImageSection && (
           <Button variant="outline" onClick={() => imageRef.current?.click()} disabled={uploading}>
             {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <><ImagePlus className="h-4 w-4 mr-1.5" /> Upload images</>}
           </Button>

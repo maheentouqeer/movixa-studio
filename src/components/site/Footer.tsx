@@ -1,6 +1,16 @@
 import { Link } from "@tanstack/react-router";
+import { Facebook, Instagram, Youtube } from "lucide-react";
+import { useSiteLinks } from "@/hooks/useSiteLinks";
+
+const SOCIALS = [
+  { label: "Instagram", key: "instagram_url", Icon: Instagram },
+  { label: "YouTube", key: "youtube_url", Icon: Youtube },
+  { label: "Facebook", key: "facebook_url", Icon: Facebook },
+] as const;
 
 export function Footer() {
+  const links = useSiteLinks();
+
   return (
     <footer className="relative mt-32 border-t border-border">
       <div className="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-[oklch(0.78_0.17_55)]/60 to-transparent" />
@@ -50,18 +60,20 @@ export function Footer() {
                   maheentouqeer786@gmail.com
                 </a>
               </li>
-              {["Instagram", "YouTube", "Facebook"].map((label) => (
-                <li key={label}>
+              <li className="flex gap-2 pt-2">
+                {SOCIALS.map(({ label, key, Icon }) => (
                   <a
-                    href={`https://${label.toLowerCase()}.com`}
+                    key={label}
+                    href={links[key]}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-muted-foreground hover:text-foreground"
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-muted-foreground transition hover:bg-white/10 hover:text-foreground"
+                    aria-label={label}
                   >
-                    {label}
+                    <Icon className="h-4 w-4" aria-hidden />
                   </a>
-                </li>
-              ))}
+                ))}
+              </li>
             </ul>
           </div>
         </div>

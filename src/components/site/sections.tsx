@@ -1,9 +1,8 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, type ReactNode } from "react";
-import { ArrowRight, Instagram, Youtube, Facebook } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { MagneticButton } from "@/components/site/MagneticButton";
 import { useSectionMedia, SectionImageGrid, SectionVideoFrame } from "@/components/site/SectionMedia";
-import { useSiteLinks } from "@/hooks/useSiteLinks";
 import labWebgl from "@/assets/lab-webgl.jpg";
 import labCgi from "@/assets/lab-cgi.jpg";
 import labBrand from "@/assets/lab-brand.jpg";
@@ -352,45 +351,56 @@ const LAB = [
 ];
 
 export function MovixaLab() {
+  const { label, title, description, imageUrls } = useSectionMedia("studio_system", {
+    label: "Studio System",
+    title: "One studio for every digital touchpoint.",
+    description:
+      "Movixa connects website design, AI video production and brand visuals into one creative system, so your launch feels consistent from the first click to the final frame.",
+  });
+
   return (
     <section id="lab" className="relative py-32">
       <div className="mx-auto max-w-7xl px-6">
-        <SectionLabel>Studio System</SectionLabel>
-        <SectionHeading>One studio for every digital touchpoint.</SectionHeading>
-        <p className="mt-6 max-w-xl text-muted-foreground">
-          Movixa connects website design, AI video production and brand visuals into one creative
-          system, so your launch feels consistent from the first click to the final frame.
-        </p>
+        <SectionLabel>{label}</SectionLabel>
+        <SectionHeading>{title}</SectionHeading>
+        {description && <p className="mt-6 max-w-xl text-muted-foreground">{description}</p>}
 
-        <div className="mt-16 grid auto-rows-[160px] grid-cols-2 gap-3 md:grid-cols-4">
-          {LAB.map((l, i) => (
-            <motion.div
-              key={l.title}
-              initial={{ opacity: 0, scale: 0.98 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.04 }}
-              whileHover={{ y: -6 }}
-              className={`group relative overflow-hidden rounded-2xl border border-white/10 bg-black p-5 ${
-                i === 0 ? "col-span-2 row-span-2" : i === 3 ? "row-span-2" : ""
-              }`}
-            >
-              <img
-                src={l.img}
-                alt={l.title}
-                loading="lazy"
-                className="absolute inset-0 h-full w-full object-cover opacity-45 transition duration-700 group-hover:scale-105 group-hover:opacity-70"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+        <div className="mt-16">
+          <SectionImageGrid
+            images={imageUrls}
+            fallback={
+              <div className="grid auto-rows-[160px] grid-cols-2 gap-3 md:grid-cols-4">
+                {LAB.map((l, i) => (
+                  <motion.div
+                    key={l.title}
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: i * 0.04 }}
+                    whileHover={{ y: -6 }}
+                    className={`group relative overflow-hidden rounded-2xl border border-white/10 bg-black p-5 ${
+                      i === 0 ? "col-span-2 row-span-2" : i === 3 ? "row-span-2" : ""
+                    }`}
+                  >
+                    <img
+                      src={l.img}
+                      alt={l.title}
+                      loading="lazy"
+                      className="absolute inset-0 h-full w-full object-cover opacity-45 transition duration-700 group-hover:scale-105 group-hover:opacity-70"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
 
-              <div className="relative flex h-full flex-col justify-between">
-                <span className="font-mono text-[10px] uppercase tracking-widest text-[oklch(0.86_0.12_70)]">
-                  {l.tag}
-                </span>
-                <h3 className="text-display text-xl md:text-2xl">{l.title}</h3>
+                    <div className="relative flex h-full flex-col justify-between">
+                      <span className="font-mono text-[10px] uppercase tracking-widest text-[oklch(0.86_0.12_70)]">
+                        {l.tag}
+                      </span>
+                      <h3 className="text-display text-xl md:text-2xl">{l.title}</h3>
+                    </div>
+                  </motion.div>
+                ))}
               </div>
-            </motion.div>
-          ))}
+            }
+          />
         </div>
       </div>
     </section>
@@ -428,93 +438,6 @@ export function WhyMovixa() {
               <p className="mt-4 text-display text-2xl md:text-3xl">{w}</p>
             </motion.div>
           ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ============================ FOLLOW THE WORK ============================ */
-
-const SOCIALS = [
-  { label: "Instagram", href: "https://instagram.com", Icon: Instagram },
-  { label: "YouTube", href: "https://youtube.com", Icon: Youtube },
-  { label: "Facebook", href: "https://facebook.com", Icon: Facebook },
-];
-
-const COLUMNS = [
-  {
-    title: "DIGITAL",
-    sub: "Digital Experiences",
-    items: ["Websites", "3D websites", "Scroll animations", "Interactive interfaces"],
-  },
-  {
-    title: "FILM",
-    sub: "AI Ads + CGI",
-    items: ["AI commercials", "CGI product ads", "Cinematic experiments", "VFX"],
-  },
-  {
-    title: "BRAND",
-    sub: "Brand Visuals",
-    items: ["Logos", "Carousels", "Campaign graphics", "Social content"],
-  },
-];
-
-export function FollowTheWork() {
-  const links = useSiteLinks();
-
-  return (
-    <section className="relative border-t border-border py-32">
-      <div className="mx-auto max-w-7xl px-6">
-        <SectionLabel>Social</SectionLabel>
-        <SectionHeading>Follow the work.</SectionHeading>
-
-        <div className="mt-16 grid gap-px bg-border md:grid-cols-3">
-          {COLUMNS.map((c, i) => (
-            <motion.div
-              key={c.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: i * 0.06 }}
-              className="bg-background p-10"
-            >
-              <h3 className="text-display text-3xl">{c.title}</h3>
-              <p className="mt-2 text-xs uppercase tracking-widest text-muted-foreground">
-                {c.sub}
-              </p>
-              <ul className="mt-6 space-y-2 text-sm text-muted-foreground">
-                {c.items.map((it) => (
-                  <li key={it}>{it}</li>
-                ))}
-              </ul>
-            </motion.div>
-          ))}
-        </div>
-
-        <div className="mt-10 flex flex-wrap gap-3">
-          {SOCIALS.map(({ label, href, Icon }) => {
-            const resolvedHref =
-              label === "Instagram"
-                ? links.instagram_url
-                : label === "YouTube"
-                  ? links.youtube_url
-                  : label === "Facebook"
-                    ? links.facebook_url
-                    : href;
-
-            return (
-              <a
-                key={label}
-                href={resolvedHref || href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full glass px-5 py-2.5 text-sm transition hover:bg-white/10"
-              >
-                <Icon className="h-4 w-4" aria-hidden /> {label}
-              </a>
-            );
-          })}
         </div>
       </div>
     </section>

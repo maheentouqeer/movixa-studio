@@ -35,7 +35,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { TrustSection } from "@/components/site/TrustSection";
-import { Showreel } from "@/components/site/Showreel";
 import { PillarSequence } from "@/components/site/PillarSequence";
 import { useSectionMedia, SectionVideoFrame } from "@/components/site/SectionMedia";
 import labBrand from "@/assets/lab-brand.jpg";
@@ -48,7 +47,6 @@ import {
   BrandVisualsSection,
   MovixaLab,
   WhyMovixa,
-  FollowTheWork,
 } from "@/components/site/sections";
 
 
@@ -143,7 +141,6 @@ function Home() {
       <Marquee />
       <PillarSequence />
       <ThreeWays />
-      <Showreel />
       <FrameSequenceSection />
       <BrandVisualsSection />
       <DigitalExperiences />
@@ -154,7 +151,6 @@ function Home() {
       <WhyMovixa />
       <Testimonials />
       <FAQ />
-      <FollowTheWork />
       <CTA />
     </>
   );
