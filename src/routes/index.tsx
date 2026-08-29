@@ -45,7 +45,6 @@ import {
   IdeaToFrame,
   DigitalExperiences,
   BrandVisualsSection,
-  MovixaLab,
   WhyMovixa,
 } from "@/components/site/sections";
 
@@ -145,7 +144,6 @@ function Home() {
       <BrandVisualsSection />
       <DigitalExperiences />
       <IdeaToFrame />
-      <MovixaLab />
       <Industries />
       <TrustSection />
       <WhyMovixa />
@@ -429,8 +427,10 @@ function FrameSequenceSection() {
         </div>
         <SectionVideoFrame
           src={videoUrl}
+          aspect="aspect-[9/16]"
+          className="mx-auto w-full max-w-[420px]"
           fallbackTitle="AI Ads + CGI"
-          fallbackDescription="Upload any vertical, horizontal or square video from admin."
+          fallbackDescription="Upload a vertical video from admin."
         />
       </div>
     </section>

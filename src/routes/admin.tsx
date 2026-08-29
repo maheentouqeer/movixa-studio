@@ -752,7 +752,12 @@ const SLOT_NAMES: Record<string, string> = {
   frame_sequence: "Frame Sequence",
   brand_visuals: "Brand Visuals",
   digital_experiences: "Digital Experiences",
-  studio_system: "Studio System",
+};
+
+const SLOT_HELP: Record<string, string> = {
+  frame_sequence: "Upload one vertical video. Replacing updates the frontend media.",
+  brand_visuals: "Upload square 1:1 images. Add more or remove individual images anytime.",
+  digital_experiences: "Upload one horizontal video. Replacing updates the frontend media.",
 };
 
 function SectionsPanel() {
@@ -767,20 +772,9 @@ function SectionsPanel() {
       .order("slot");
     if (error) toast.error(error.message);
     else {
-      const next = ((data ?? []) as SiteSection[]).filter((row) => row.slot !== "film_reel");
-      if (!next.some((row) => row.slot === "studio_system")) {
-        next.push({
-          slot: "studio_system",
-          label: "Studio System",
-          title: "One studio for every digital touchpoint.",
-          description:
-            "Movixa connects website design, AI video production and brand visuals into one creative system, so your launch feels consistent from the first click to the final frame.",
-          storage_path: null,
-          video_url: null,
-          image_paths: [],
-          image_urls: [],
-        });
-      }
+      const next = ((data ?? []) as SiteSection[]).filter(
+        (row) => row.slot !== "film_reel" && row.slot !== "studio_system",
+      );
       setRows(next);
     }
     setLoading(false);
@@ -813,7 +807,7 @@ function SectionCard({ row, onSaved }: { row: SiteSection; onSaved: () => void }
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const imageRef = useRef<HTMLInputElement>(null);
-  const isImageSection = row.slot === "brand_visuals" || row.slot === "studio_system";
+  const isImageSection = row.slot === "brand_visuals";
   const acceptsVideo = row.slot === "frame_sequence" || row.slot === "digital_experiences";
 
   useEffect(() => {
@@ -855,6 +849,7 @@ function SectionCard({ row, onSaved }: { row: SiteSection; onSaved: () => void }
     setUploading(false);
     if (error) return toast.error(error.message);
     await save({ storage_path: path, video_url: publicStorageUrl(path) });
+    if (row.storage_path) await supabase.storage.from(VIDEO_BUCKET).remove([row.storage_path]);
   };
 
   const uploadImages = async (files: FileList) => {
@@ -899,7 +894,12 @@ function SectionCard({ row, onSaved }: { row: SiteSection; onSaved: () => void }
   return (
     <div className="glass rounded-2xl p-6 space-y-4">
       <div className="flex items-center justify-between gap-3">
-        <h3 className="text-display text-2xl">{SLOT_NAMES[row.slot] ?? row.slot}</h3>
+        <div>
+          <h3 className="text-display text-2xl">{SLOT_NAMES[row.slot] ?? row.slot}</h3>
+          {SLOT_HELP[row.slot] && (
+            <p className="mt-1 text-xs text-muted-foreground">{SLOT_HELP[row.slot]}</p>
+          )}
+        </div>
         <Badge variant="outline" className="text-[10px] uppercase tracking-widest">
           {isImageSection
             ? imagePaths.length
@@ -986,14 +986,19 @@ function SectionCard({ row, onSaved }: { row: SiteSection; onSaved: () => void }
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <>
-                <Upload className="h-4 w-4 mr-1.5" /> {row.storage_path ? "Replace video" : "Upload video"}
+                <Upload className="h-4 w-4 mr-1.5" />{" "}
+                {row.storage_path
+                  ? "Replace video"
+                  : row.slot === "frame_sequence"
+                    ? "Upload vertical video"
+                    : "Upload horizontal video"}
               </>
             )}
           </Button>
         )}
         {isImageSection && (
           <Button variant="outline" onClick={() => imageRef.current?.click()} disabled={uploading}>
-            {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <><ImagePlus className="h-4 w-4 mr-1.5" /> Upload images</>}
+            {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <><ImagePlus className="h-4 w-4 mr-1.5" /> Upload square images</>}
           </Button>
         )}
         {acceptsVideo && row.storage_path && (

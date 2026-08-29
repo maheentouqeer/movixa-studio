@@ -129,7 +129,7 @@ export function SectionVideoFrame({
             const v = e.currentTarget;
             if (v.videoWidth && v.videoHeight) setRatio(v.videoWidth / v.videoHeight);
           }}
-          className={`absolute inset-0 h-full w-full ${isVertical ? "object-contain" : "object-cover"}`}
+          className="absolute inset-0 h-full w-full object-contain"
         />
       ) : (
         <div className="absolute inset-0 overflow-hidden">
@@ -177,13 +177,15 @@ export function SectionVideoFrame({
   );
 }
 
-/** Masonry-ish gallery for admin uploaded section images. */
+/** Square gallery for admin uploaded section images. */
 export function SectionImageGrid({
   images,
   fallback,
+  altPrefix = "Section image",
 }: {
   images: string[];
   fallback?: React.ReactNode;
+  altPrefix?: string;
 }) {
   if (!images.length) return <>{fallback ?? null}</>;
 
@@ -196,15 +198,13 @@ export function SectionImageGrid({
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.5, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }}
-          className={`group relative overflow-hidden rounded-xl border border-white/10 bg-black ${
-            i % 5 === 0 ? "col-span-2 aspect-[16/9]" : "aspect-[4/5]"
-          }`}
+          className="group relative aspect-square overflow-hidden rounded-xl border border-white/10 bg-black"
         >
           <img
             src={src}
-            alt={`Brand visual ${i + 1}`}
+            alt={`${altPrefix} ${i + 1}`}
             loading="lazy"
-            className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+            className="h-full w-full object-contain transition duration-700 group-hover:scale-105"
           />
         </motion.div>
       ))}

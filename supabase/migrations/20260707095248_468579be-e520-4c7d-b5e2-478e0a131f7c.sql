@@ -4,7 +4,7 @@ INSERT INTO public.user_roles (user_id, role)
 SELECT id, 'admin'::app_role FROM auth.users WHERE email = 'maheentouqeer786@gmail.com'
 ON CONFLICT DO NOTHING;
 
--- Videos table for showreel and portfolio managed via admin panel
+-- Videos table for portfolio media managed via admin panel
 CREATE TABLE public.videos (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   title text NOT NULL,
