@@ -1,6 +1,6 @@
 import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef, useState, type ReactNode } from "react";
-import { ArrowRight, ArrowUpRight, Instagram, Youtube, Facebook } from "lucide-react";
+import { useRef, type ReactNode } from "react";
+import { ArrowRight, Instagram, Youtube, Facebook } from "lucide-react";
 import { MagneticButton } from "@/components/site/MagneticButton";
 import { useSectionMedia, SectionImageGrid, SectionVideoFrame } from "@/components/site/SectionMedia";
 import { useSiteLinks } from "@/hooks/useSiteLinks";
@@ -130,86 +130,6 @@ export function ThreeWays() {
             </motion.article>
           ))}
         </div>
-      </div>
-    </section>
-  );
-}
-
-/* ============================ CAPABILITIES ============================ */
-
-const CAPABILITIES = [
-  "AI COMMERCIALS",
-  "CGI PRODUCT ADS",
-  "DIGITAL EXPERIENCES",
-  "3D WEBSITES",
-  "ARCHITECTURAL CGI",
-  "PRODUCT FILMS",
-  "BRAND VISUALS",
-  "SOCIAL CAMPAIGNS",
-  "LOGO MOTION",
-  "EXPERIMENTAL CGI",
-];
-
-const CAP_TINTS = [
-  "oklch(0.72 0.19 45)",
-  "oklch(0.68 0.22 25)",
-  "oklch(0.62 0.12 245)",
-  "oklch(0.78 0.17 55)",
-  "oklch(0.55 0.1 200)",
-];
-
-export function Capabilities() {
-  const [active, setActive] = useState<number | null>(null);
-
-  return (
-    <section className="relative overflow-hidden border-y border-border py-32">
-      <motion.div
-        aria-hidden
-        animate={{ opacity: active === null ? 0 : 0.5 }}
-        transition={{ duration: 0.5 }}
-        className="pointer-events-none absolute inset-0 blur-[120px]"
-        style={{
-          background:
-            active === null
-              ? undefined
-              : `radial-gradient(circle at 70% 40%, ${CAP_TINTS[active % CAP_TINTS.length]}, transparent 60%)`,
-        }}
-      />
-      <div className="relative mx-auto max-w-7xl px-6">
-        <SectionLabel>Services</SectionLabel>
-        <SectionHeading>
-          Websites, AI video,
-          <br />
-          and brand systems
-          <br />
-          built to move.
-        </SectionHeading>
-
-        <ul className="mt-16 border-t border-border">
-          {CAPABILITIES.map((c, i) => (
-            <li key={c}>
-              <a
-                href="/contact"
-                onMouseEnter={() => setActive(i)}
-                onMouseLeave={() => setActive(null)}
-                onFocus={() => setActive(i)}
-                onBlur={() => setActive(null)}
-                className="group flex items-baseline justify-between gap-6 border-b border-border py-5 transition-colors"
-              >
-                <span
-                  className={`text-display text-2xl transition-all duration-300 md:text-4xl ${
-                    active === i ? "translate-x-3 text-foreground" : "text-muted-foreground"
-                  }`}
-                >
-                  {c}
-                </span>
-                <ArrowUpRight
-                  className={`h-5 w-5 shrink-0 transition-opacity ${active === i ? "opacity-100" : "opacity-0"}`}
-                />
-              </a>
-            </li>
-          ))}
-        </ul>
       </div>
     </section>
   );

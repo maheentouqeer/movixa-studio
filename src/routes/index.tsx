@@ -38,9 +38,11 @@ import { TrustSection } from "@/components/site/TrustSection";
 import { Showreel } from "@/components/site/Showreel";
 import { PillarSequence } from "@/components/site/PillarSequence";
 import { useSectionMedia, SectionVideoFrame } from "@/components/site/SectionMedia";
+import labBrand from "@/assets/lab-brand.jpg";
+import labCgi from "@/assets/lab-cgi.jpg";
+import labWebsite from "@/assets/lab-website.jpg";
 import {
   ThreeWays,
-  Capabilities,
   IdeaToFrame,
   DigitalExperiences,
   BrandVisualsSection,
@@ -146,7 +148,6 @@ function Home() {
       <BrandVisualsSection />
       <DigitalExperiences />
       <IdeaToFrame />
-      <Capabilities />
       <MovixaLab />
       <Industries />
       <TrustSection />
@@ -307,9 +308,9 @@ function Hero() {
 function HeroStudioConsole() {
   const [active, setActive] = useState(1);
   const layers = [
-    { title: "Brand", sub: "identity", x: "12%", y: "18%" },
-    { title: "AI Ad", sub: "frame 024", x: "36%", y: "31%" },
-    { title: "Web", sub: "live build", x: "58%", y: "15%" },
+    { title: "Brand", sub: "identity", x: "12%", y: "18%", img: labBrand },
+    { title: "AI Ad", sub: "frame 024", x: "36%", y: "31%", img: labCgi },
+    { title: "Web", sub: "live build", x: "58%", y: "15%", img: labWebsite },
   ];
 
   return (
@@ -346,18 +347,26 @@ function HeroStudioConsole() {
             opacity: active === index ? 1 : 0.72,
           }}
           transition={{ duration: active === index ? 0.3 : 5 + index, repeat: active === index ? 0 : Infinity }}
-          className={`absolute flex aspect-[4/5] w-[34%] max-w-[180px] flex-col justify-between overflow-hidden rounded-2xl border p-4 text-left backdrop-blur-xl transition-colors ${
+          className={`absolute flex aspect-[4/5] w-[34%] max-w-[180px] flex-col justify-between overflow-hidden rounded-2xl border p-4 text-left transition-colors ${
             active === index
               ? "border-[oklch(0.86_0.12_70)] bg-white/[0.12]"
               : "border-white/10 bg-white/[0.05]"
           }`}
           style={{ left: layer.x, top: layer.y }}
         >
-          <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-[oklch(0.86_0.12_70)]">
+          <img
+            src={layer.img}
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover opacity-70 transition duration-700 group-hover:scale-105"
+          />
+          <span className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-black/15" />
+          <span className="relative font-mono text-[10px] uppercase tracking-[0.22em] text-[oklch(0.86_0.12_70)]">
             {layer.sub}
           </span>
-          <span className="text-display text-2xl leading-none md:text-4xl">{layer.title}</span>
-          <span className="absolute inset-x-4 bottom-16 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+          <span className="relative text-display text-2xl leading-none text-white md:text-4xl">
+            {layer.title}
+          </span>
+          <span className="absolute inset-x-4 bottom-16 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent" />
         </motion.button>
       ))}
 
