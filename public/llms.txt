@@ -1,0 +1,8 @@
+# Movixa Studio
+
+> Movixa is a cinematic AI creative studio making AI commercials, CGI product ads, brand visuals and interactive websites for ambitious brands.
+
+## Pages
+
+- [Home](/): Services, work, process, FAQ and what Movixa creates with AI, CGI and interactive web.
+- [Contact](/contact): Start a project — brief, budget, timeline and file uploads.

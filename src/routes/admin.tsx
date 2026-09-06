@@ -819,17 +819,22 @@ function SectionCard({ row, onSaved }: { row: SiteSection; onSaved: () => void }
 
   const save = async (patch: Partial<SiteSection> = {}) => {
     setSaving(true);
+    const merged: SiteSection = {
+      slot: row.slot,
+      label,
+      title,
+      description: description || null,
+      storage_path: row.storage_path,
+      video_url: row.video_url,
+      image_paths: row.image_paths ?? [],
+      image_urls: row.image_urls ?? [],
+      ...patch,
+    };
     const { error } = await supabase.from("site_sections").upsert(
       {
-        slot: row.slot,
-        label,
-        title,
-        description: description || null,
-        storage_path: row.storage_path,
-        video_url: row.video_url,
-        image_paths: row.image_paths ?? [],
-        image_urls: row.image_urls ?? [],
-        ...patch,
+        ...merged,
+        image_paths: merged.image_paths ?? [],
+        image_urls: merged.image_urls ?? [],
       },
       { onConflict: "slot" },
     );
