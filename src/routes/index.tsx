@@ -116,17 +116,20 @@ function RotatingPhrase() {
 export const Route = createFileRoute("/")({
   component: Home,
   head: () => ({
-    meta: [
-      { title: "Movixa — Cinematic AI Creative Studio" },
+    meta: [{ property: "og:url", content: "https://movixa-studio.lovable.app/" }],
+    links: [{ rel: "canonical", href: "https://movixa-studio.lovable.app/" }],
+    scripts: [
       {
-        name: "description",
-        content:
-          "AI commercials, CGI product ads, architectural transformations, logo animations, and cinematic AI films. Built for brands that refuse the ordinary.",
-      },
-      { property: "og:title", content: "Movixa — Cinematic AI Creative Studio" },
-      {
-        property: "og:description",
-        content: "AI commercials, CGI product ads, and cinematic films for world-class brands.",
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: FAQS.map((f) => ({
+            "@type": "Question",
+            name: f.q,
+            acceptedAnswer: { "@type": "Answer", text: f.a },
+          })),
+        }),
       },
     ],
   }),
