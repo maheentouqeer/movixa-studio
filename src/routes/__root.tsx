@@ -57,7 +57,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "Cinematic AI ads, CGI product films, interactive websites, and brand visuals — engineered frame by frame for brands that refuse the ordinary." },
       { name: "author", content: "Movixa" },
       { property: "og:title", content: "Movixa — Cinematic AI Creative Studio" },
-      { property: "og:description", content: "AI commercials, CGI product ads, architectural transformations, logo animations, and cinematic AI films. Built for brands that refuse the ordinary." },
+      { property: "og:description", content: "Cinematic AI ads, CGI product films, interactive websites, and brand visuals — engineered frame by frame for brands that refuse the ordinary." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Movixa — Cinematic AI Creative Studio" },
