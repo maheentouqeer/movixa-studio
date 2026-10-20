@@ -10,3 +10,4 @@
 <!-- LOVABLE:END -->
 
 - Supabase background activity runs through a read-only GitHub Actions workflow and a UTC date-gated Python script, not database cron or app runtime, to avoid changes to the website and stored data.
+- Public section and setting reads use explicit allowlists matching the homepage sections and social-link keys; other records remain admin-only to prevent future internal content from being published automatically.
