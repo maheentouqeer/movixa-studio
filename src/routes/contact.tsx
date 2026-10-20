@@ -23,6 +23,8 @@ export const Route = createFileRoute("/contact")({
       { property: "og:title", content: "Start your project — Movixa" },
       { property: "og:description", content: "Cinematic AI creative studio. Reply within 24 hours." },
       { property: "og:url", content: "https://movixa-studio.lovable.app/contact" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: "https://movixa-studio.lovable.app/contact" }],
   }),

@@ -35,7 +35,15 @@ import { SOCIAL_KEYS, type SocialKey } from "@/hooks/useSiteLinks";
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
-  head: () => ({ meta: [{ title: "Admin — Movixa" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [
+    { title: "Admin — Movixa" },
+    { name: "description", content: "Movixa administration for studio content, media, and project inquiries." },
+    { property: "og:title", content: "Admin — Movixa" },
+    { property: "og:description", content: "Movixa administration for studio content, media, and project inquiries." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+    { name: "robots", content: "noindex" },
+  ] }),
 });
 
 type Status = "new" | "contacted" | "in_progress" | "completed" | "closed";
