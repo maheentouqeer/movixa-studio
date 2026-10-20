@@ -1,6 +1,6 @@
 name: Supabase background activity
 
-on:
+'on':
   schedule:
     # GitHub checks daily; the script sends a database request only every 6 days.
     - cron: '23 7 * * *'
