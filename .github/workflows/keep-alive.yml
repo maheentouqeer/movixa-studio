@@ -1,0 +1,32 @@
+name: Supabase background activity
+
+on:
+  schedule:
+    # GitHub checks daily; the script sends a database request only every 6 days.
+    - cron: '23 7 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supabase-background-activity
+  cancel-in-progress: false
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check six-day schedule
+        run: python -m unittest discover -s scripts -p 'test_supabase_keep_alive.py'
+      - name: Read a public Supabase setting when due
+        env:
+          SUPABASE_URL: https://xfnsnvjfaammlhvufvad.supabase.co
+          # Existing public anon key, NOT a service-role key. Public RLS applies.
+          SUPABASE_PUBLISHABLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhmbnNudmpmYWFtbWxodnVmdmFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxODc3OTAsImV4cCI6MjA5ODc2Mzc5MH0.LXC_ea5yEDxom5AguGGA8ktrzNy2bRqxW11hyNmmGPI
+        run: python scripts/supabase_keep_alive.py

@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Supabase background activity runs through a read-only GitHub Actions workflow and a UTC date-gated Python script, not database cron or app runtime, to avoid changes to the website and stored data.

@@ -116,7 +116,15 @@ function RotatingPhrase() {
 export const Route = createFileRoute("/")({
   component: Home,
   head: () => ({
-    meta: [{ property: "og:url", content: "https://movixa-studio.lovable.app/" }],
+    meta: [
+      { title: "Movixa — Cinematic AI Creative Studio" },
+      { name: "description", content: "Cinematic AI ads, CGI product films, interactive websites, and brand visuals — engineered frame by frame for brands that refuse the ordinary." },
+      { property: "og:title", content: "Movixa — Cinematic AI Creative Studio" },
+      { property: "og:description", content: "Cinematic AI ads, CGI product films, interactive websites, and brand visuals — engineered frame by frame for brands that refuse the ordinary." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:url", content: "https://movixa-studio.lovable.app/" },
+    ],
     links: [{ rel: "canonical", href: "https://movixa-studio.lovable.app/" }],
     scripts: [
       {

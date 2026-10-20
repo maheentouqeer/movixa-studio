@@ -9,7 +9,15 @@ import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
   component: AuthPage,
-  head: () => ({ meta: [{ title: "Sign in — Movixa" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [
+    { title: "Sign in — Movixa" },
+    { name: "description", content: "Sign in to manage Movixa studio content and inquiries." },
+    { property: "og:title", content: "Sign in — Movixa" },
+    { property: "og:description", content: "Sign in to manage Movixa studio content and inquiries." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+    { name: "robots", content: "noindex" },
+  ] }),
 });
 
 function AuthPage() {
