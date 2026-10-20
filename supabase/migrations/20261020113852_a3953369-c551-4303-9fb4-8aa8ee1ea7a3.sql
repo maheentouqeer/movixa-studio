@@ -1,0 +1,1 @@
+ALTER POLICY "Site settings are publicly readable" ON public.site_settings TO anon, authenticated USING (key IN ('instagram_url', 'youtube_url', 'facebook_url'));
