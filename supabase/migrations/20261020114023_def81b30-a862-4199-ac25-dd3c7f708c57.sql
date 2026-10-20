@@ -1,0 +1,1 @@
+ALTER POLICY "Site sections are publicly readable" ON public.site_sections TO anon, authenticated USING (slot IN ('frame_sequence', 'brand_visuals', 'digital_experiences'));
