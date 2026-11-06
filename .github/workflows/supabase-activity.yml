@@ -1,0 +1,30 @@
+name: Supabase activity check
+
+'on':
+  schedule:
+    - cron: '15 8 */5 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supabase-activity-check
+  cancel-in-progress: false
+
+jobs:
+  read-public-setting:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Read one public Supabase setting
+        env:
+          SUPABASE_URL: https://xfnsnvjfaammlhvufvad.supabase.co
+          SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhmbnNudmpmYWFtbWxodnVmdmFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxODc3OTAsImV4cCI6MjA5ODc2Mzc5MH0.LXC_ea5yEDxom5AguGGA8ktrzNy2bRqxW11hyNmmGPI
+        run: >-
+          curl --request GET --fail --silent --show-error
+          --retry 3 --retry-delay 5 --retry-all-errors
+          --connect-timeout 10 --max-time 30
+          --header "apikey: ${SUPABASE_ANON_KEY}"
+          --write-out 'Supabase public read returned HTTP %{http_code}\n'
+          "${SUPABASE_URL}/rest/v1/site_settings?select=key&limit=1"
